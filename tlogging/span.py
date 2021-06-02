@@ -45,6 +45,10 @@ class InternalSpan(object):
         self.__metrics = list()
         self.__external_spans = list()
 
+    def __del__(self):
+        if self._Flag:
+            self.signal()
+
     @check_flag
     def _set_version(self, version):
         if not isinstance(version, str):
