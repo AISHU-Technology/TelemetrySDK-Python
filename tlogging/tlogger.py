@@ -63,12 +63,18 @@ class SamplerLogger(object):
         return children_span
 
     def set_tarceid(self, tid, span):
+        if not isinstance(span, InternalSpan):
+            raise TException("Object is not of type Span")
         span._set_trance_id(tid)
 
     def set_metrics(self, metrics, span):
+        if not isinstance(span, InternalSpan):
+            raise TException("Object is not of type Span")
         span._set_metrics(metrics)
 
     def set_parentid(self, pid, span):
+        if not isinstance(span, InternalSpan):
+            raise TException("Object is not of type Span")
         span._set_parent_id(pid)
 
     def gen_id(self):
