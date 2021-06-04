@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import time
+import socket
 
 from .texception import TException
 
@@ -50,7 +51,7 @@ class Resources(object):
         self.__telemetry_sdk_language = "python"
 
     def _get_hostname(self):
-        return "localhost.localdomain"
+        return socket.gethostname()
 
     def get_all_property(self):
         my_property = dict()
