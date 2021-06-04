@@ -31,10 +31,6 @@ class SamplerLogger(object):
     loglevel = "InfoLevel"
     outer = None
 
-    def __init__(self):
-        if not self.__span_set:
-            self.__span_set = weakref.WeakSet()
-
     def __new__(cls, *args, **kwargs):
         if not hasattr(SamplerLogger, "_instance"):
             with SamplerLogger._instance_lock:
@@ -128,12 +124,10 @@ class SamplerLogger(object):
         span._set_events(Events("Fatal", message, etype))
 
     def close(self):
-        if self.__span_set is None:
-            raise TException("All of span has been closed")
         for span in self.__span_set:
             if span._Flag:
                 span.signal()
-        self.__span_set = None
+        self.__span_set = weakref.WeakSet()
 
     def _get_level(self):
         return _LOGLEVEL.get(self.loglevel, 3)
