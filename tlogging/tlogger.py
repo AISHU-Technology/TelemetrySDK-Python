@@ -74,7 +74,7 @@ class SamplerLogger(object):
         span._set_parent_id(pid)
 
     def gen_id(self):
-        return hashlib.md5(os.urandom(26)).hexdigest()
+        return hashlib.sha256(os.urandom(64)).hexdigest()
 
     def set_attributes(self, atype, message, span):
         if not isinstance(span, InternalSpan):

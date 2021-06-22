@@ -73,15 +73,6 @@ class TestFieldAttributes(unittest.TestCase):
         self.assertTrue(self.attributes.get_all_property(), {'test': 'ssss', 'type': 'test'})
 
 
-class TestFieldExternalSpans(unittest.TestCase):
-
-    def setUp(self):
-        self.external = field.ExternalSpans()
-
-    def test_get_all_property(self):
-        self.assertIsNone(self.external.get_all_property())
-
-
 class TestFieldResources(unittest.TestCase):
 
     def setUp(self):

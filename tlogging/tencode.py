@@ -13,10 +13,7 @@ class Encoder(object):
     def __init__(self, encoder=None):
         if encoder and encoder not in self._OTYPE:
             raise TException("Unsupported output type")
-        if encoder == "json":
-            self.__encode_func = self._encode_to_json
-        else:
-            self.__encode_func = self._encode_to_json
+        self.__encode_func = self._encode_to_json
 
     def set_encoder(self, encoder):
         if encoder not in self._OTYPE:

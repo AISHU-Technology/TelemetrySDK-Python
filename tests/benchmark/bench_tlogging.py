@@ -11,6 +11,7 @@ from tlogging.tencode import Encoder
 
 RUNS = 500
 _VSESION = "AISHUV0"
+NULL = '/dev/null'
 
 
 class TestTlogger(benchmark.Benchmark):
@@ -21,21 +22,15 @@ class TestTlogger(benchmark.Benchmark):
         self.logger = SamplerLogger()
         self.logger.loglevel = "AllLevel"
         self.span = self.logger.internal_span()
-        # self.logger.set_attributes("test", {"user.id": "01", "act.type": "search topic", "user.dep": "011",
-        #                                     "act.keyword": "建筑"}, self.span)
-        # self.logger.debug("debug msg!", self.span)
-        # self.logger.debug(["debug msg1!"], self.span, "sss")
-        # self.logger.debug("debug msg2!", self.span)
         self.m1 = Metrics()
         self.m1.set_attributes("1", "2")
         self.m1.set_attributes("2", "3")
         self.m1.set_label("lll")
         self.test = []
-        # self.logger.set_metrics(self.m1, self.span)
         self.stdout = sys.stdout
         f = open('nul', 'w')
         if sys.platform.startswith("linux"):
-            f = open('/dev/null', 'w')
+            f = open(NULL, 'w')
         sys.stdout = f
 
     def tearDown(self):
@@ -128,9 +123,6 @@ class TestSpan(benchmark.Benchmark):
     def test__set_events(self):
         self.span._set_events(self.eventes)
 
-    # def test__set_external_spans(self):
-    #     self.span._set_external_spans(self.external)
-
     def test__init_body(self):
         self.span._init_body()
 
@@ -146,15 +138,6 @@ class TestFieldMetrics(benchmark.Benchmark):
 
     def setUp(self):
         self.metrics = Metrics()
-        # self.metrics.set_other_property("2", "2")
-        # self.metrics.set_other_property("3", "2")
-        # self.metrics.set_other_property("4", "2")
-        # self.metrics.set_other_property("5", "2")
-        # self.metrics.set_label("1")
-        # self.metrics.set_label("2")
-        # self.metrics.set_label("3")
-        # self.metrics.set_label("4")
-        # self.metrics.set_attributes("1", "2")
 
     def test_set_attributes(self):
         self.metrics.set_attributes("1", "2")
@@ -177,7 +160,7 @@ class TestTencode(benchmark.Benchmark):
         self.stdout = sys.stdout
         f = open('nul', 'w')
         if sys.platform.startswith("linux"):
-            f = open('/dev/null', 'w')
+            f = open(NULL, 'w')
         sys.stdout = f
 
     def tearDown(self):
@@ -195,5 +178,3 @@ class TestTencode(benchmark.Benchmark):
 
 if __name__ == '__main__':
     benchmark.main(format="markdown", numberFormat="%.4g")
-    # could have written benchmark.main(each=50) if the
-    # first class shouldn't have been run 100 times.

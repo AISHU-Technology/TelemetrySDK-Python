@@ -69,8 +69,7 @@ class Resources(object):
 class Events(object):
 
     def __init__(self, severity, message, etype=None):
-        if etype:
-            if not isinstance(etype, str):
+        if etype and not isinstance(etype, str):
                 raise TException("etype should be str type")
         if not isinstance(message, str) and not etype:
             raise TException("When mtype does not exist, the log information should be of type str")
@@ -124,10 +123,4 @@ class Attributes(object):
 
 
 class ExternalSpans(object):
-    def __init__(self):
-        pass
-
-    def get_all_property(self):
-        # property = dict()
-        # return property
-        pass
+    pass

@@ -59,12 +59,9 @@ class TestTlogger(unittest.TestCase):
     @allure.title("tlogging设置attributes: span不存在,设置失败; 重复修改,成功; 传入的span存在,设置成功")
     def test_set_attributes(self):
         span = self.logger.internal_span()
-        self.assertRaises(TException, self.logger.set_attributes, "test", {"user.id": "01", "act.type": "search topic",
-                                                                           "user.dep": "011", "act.keyword": "建筑"},
-                          "123")
-        self.assertIsNone(self.logger.set_attributes("test", {"user.id": "01", "act.type": "search topic",
-                                                              "user.dep": "011", "act.keyword": "建筑"}, span))
-        self.assertIsNone(self.logger.set_attributes("test", {"user.id": "01"}, span))
+        self.assertRaises(TException, self.logger.set_attributes, "test", {"user.id1": "01"}, "123")
+        self.assertIsNone(self.logger.set_attributes("test", {"user.id2": "02"}, span))
+        self.assertIsNone(self.logger.set_attributes("test", {"user.id3": "03"}, span))
         self.assertIsNone(self.logger.set_attributes("test", "sss", span))
 
     @allure.title("tlogging设置tarce级别日志: span不存在,设置失败; 缺省etype, message为非str,设置失败; 缺省etype,"
