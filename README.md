@@ -2,7 +2,7 @@
 
 ## 安装方式
 ```
-git clone git@gitlab.aishu.cn:anyrobot/observability/telemetry-python.git
+git clone git@gitlab.aishu.cn:anyrobot/observability/telemetrysdk/telemetry-python.git
 cd telemetry-python
 pip install .
 ```
