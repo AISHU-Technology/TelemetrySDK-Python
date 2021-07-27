@@ -64,44 +64,45 @@ class TestTlogger(unittest.TestCase):
         self.assertIsNone(self.logger.set_attributes("test", {"user.id3": "03"}, span))
         self.assertIsNone(self.logger.set_attributes("test", "sss", span))
 
-    @allure.title("tlogging设置tarce级别日志: span不存在,设置失败; 缺省etype, message为非str,设置失败; 缺省etype,"
+    @allure.title("tlogging设置tarce级别日志: span不存在,设置成功; 缺省etype, message为非str,设置失败; 缺省etype,"
                   " message为str,设置成功; 设置etype, message为非str,设置成功; 传入的span存在,设置成功")
     def test_trace(self):
         span = self.logger.internal_span()
+        self.assertIsNone(self.logger.trace("sss"))
         self.assertRaises(TException, self.logger.trace, "sss", "123")
         self.assertIsNone(self.logger.trace("sss", span))
         self.assertIsNone(self.logger.trace(["sss"], span, "test"))
         self.assertRaises(TException, self.logger.trace, ["sss"], span)
         self.assertRaises(TException, self.logger.trace, "sss", span, 123)
 
-    @allure.title("tlogging设置debug级别日志: span不存在,设置失败; 传入的span存在,设置成功")
+    @allure.title("tlogging设置debug级别日志: span不存在,设置成功; 传入的span存在,设置成功")
     def test_debug(self):
         span = self.logger.internal_span()
-        self.assertRaises(TException, self.logger.debug, "sss", "123")
+        self.assertIsNone(self.logger.debug("sss"))
         self.assertIsNone(self.logger.debug("sss", span))
 
-    @allure.title("tlogging设置info级别日志: span不存在,设置失败; 传入的span存在,设置成功")
+    @allure.title("tlogging设置info级别日志: span不存在,设置成功; 传入的span存在,设置成功")
     def test_info(self):
         span = self.logger.internal_span()
-        self.assertRaises(TException, self.logger.info, "sss", "123")
+        self.assertIsNone(self.logger.info("sss"))
         self.assertIsNone(self.logger.info("sss", span))
 
-    @allure.title("tlogging设置warn级别日志: span不存在,设置失败; 传入的span存在,设置成功")
+    @allure.title("tlogging设置warn级别日志: span不存在,设置成功; 传入的span存在,设置成功")
     def test_warn(self):
         span = self.logger.internal_span()
-        self.assertRaises(TException, self.logger.warn, "sss", "123")
+        self.assertIsNone(self.logger.warn("sss"))
         self.assertIsNone(self.logger.warn("sss", span))
 
-    @allure.title("tlogging设置error级别日志: span不存在,设置失败; 传入的span存在,设置成功")
+    @allure.title("tlogging设置error级别日志: span不存在,设置成功; 传入的span存在,设置成功")
     def test_error(self):
         span = self.logger.internal_span()
-        self.assertRaises(TException, self.logger.error, "sss", "123")
+        self.assertIsNone(self.logger.error("sss"))
         self.assertIsNone(self.logger.error("sss", span))
 
-    @allure.title("tlogging设置fatal级别日志: span不存在,设置失败; 传入的span存在,设置成功")
+    @allure.title("tlogging设置fatal级别日志: span不存在,设置成功; 传入的span存在,设置成功")
     def test_fatal(self):
         span = self.logger.internal_span()
-        self.assertRaises(TException, self.logger.fatal, "sss", "123")
+        self.assertIsNone(self.logger.fatal("sss"))
         self.assertIsNone(self.logger.fatal("sss", span))
 
     @allure.title("tlogging释放span: 先释放部分span,在释放全部span,无重复span输出")

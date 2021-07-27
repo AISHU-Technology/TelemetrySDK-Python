@@ -81,45 +81,57 @@ class SamplerLogger(object):
             raise TException("Object is not of type Span")
         span._set_attributes(Attributes(atype, message))
 
-    def trace(self, message, span, etype=None):
+    def trace(self, message, span=None, etype=None):
         if _LOGLEVEL["DebugLevel"] < self._get_level():
             return
-        if not isinstance(span, InternalSpan):
+        if not span:
+            span = self.internal_span()
+        elif not isinstance(span, InternalSpan):
             raise TException("Object is not of type Span")
         span._set_events(Events("Trace", message, etype))
 
-    def debug(self, message, span, etype=None):
+    def debug(self, message, span=None, etype=None):
         if _LOGLEVEL["DebugLevel"] < self._get_level():
             return
-        if not isinstance(span, InternalSpan):
+        if not span:
+            span = self.internal_span()
+        elif not isinstance(span, InternalSpan):
             raise TException("Object is not of type Span")
         span._set_events(Events("Debug", message, etype))
 
-    def info(self, message, span, etype=None):
+    def info(self, message, span=None, etype=None):
         if _LOGLEVEL["DebugLevel"] < self._get_level():
             return
-        if not isinstance(span, InternalSpan):
+        if not span:
+            span = self.internal_span()
+        elif not isinstance(span, InternalSpan):
             raise TException("Object is not of type Span")
         span._set_events(Events("Info", message, etype))
 
-    def warn(self, message, span, etype=None):
+    def warn(self, message, span=None, etype=None):
         if _LOGLEVEL["DebugLevel"] < self._get_level():
             return
-        if not isinstance(span, InternalSpan):
+        if not span:
+            span = self.internal_span()
+        elif not isinstance(span, InternalSpan):
             raise TException("Object is not of type Span")
         span._set_events(Events("Warn", message, etype))
 
-    def error(self, message, span, etype=None):
+    def error(self, message, span=None, etype=None):
         if _LOGLEVEL["DebugLevel"] < self._get_level():
             return
-        if not isinstance(span, InternalSpan):
+        if not span:
+            span = self.internal_span()
+        elif not isinstance(span, InternalSpan):
             raise TException("Object is not of type Span")
         span._set_events(Events("Error", message, etype))
 
-    def fatal(self, message, span, etype=None):
+    def fatal(self, message, span=None, etype=None):
         if _LOGLEVEL["DebugLevel"] < self._get_level():
             return
-        if not isinstance(span, InternalSpan):
+        if not span:
+            span = self.internal_span()
+        elif not isinstance(span, InternalSpan):
             raise TException("Object is not of type Span")
         span._set_events(Events("Fatal", message, etype))
 
