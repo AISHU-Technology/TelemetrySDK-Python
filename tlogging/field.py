@@ -25,8 +25,8 @@ class Metrics(object):
             raise TException("k can not be Attributes or Labels")
         if not isinstance(k, str):
             raise TException("k should be str type")
-        if not isinstance(v, str):
-            raise TException("v should be str type")
+        if not isinstance(v, (float, int)):
+            raise TException("v should be int or float type")
         self.__my_property[k] = v
 
     def set_label(self, label):
@@ -94,7 +94,7 @@ class Events(object):
         return my_property
 
     def _get_time(self):
-        return int(time.time() * 1000)
+        return int(time.time() * 1000000000)
 
 
 class Attributes(object):

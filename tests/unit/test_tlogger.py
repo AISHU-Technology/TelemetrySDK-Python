@@ -14,7 +14,7 @@ class TestTlogger(unittest.TestCase):
 
     def setUp(self):
         self.logger = tlogger.SamplerLogger()
-        self.logger.loglevel = "AllLevel"
+        self.logger.loglevel = "TraceLevel"
 
     @allure.title("tlogging创建span: 创建成功")
     def test_internal_span(self):

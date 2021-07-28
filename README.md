@@ -16,7 +16,7 @@ from tlogging import Metrics
 
 
 logger = SamplerLogger()   # 创建日志管理器
-logger.loglevel = "AllLevel"  # 设置日志级别
+logger.loglevel = "TraceLevel"  # 设置日志级别
 span = logger.internal_span()  # 创建span
 logger.set_attributes("test", {"user.id": "01", "act.type": "search topic", "user.dep": "011",
                                "act.keyword": "建筑"}, span)  # 设置attributes，attributes是用来描述sapn的信息

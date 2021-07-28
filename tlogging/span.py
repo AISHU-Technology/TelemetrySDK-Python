@@ -159,4 +159,4 @@ class InternalSpan(object):
         self.__end_time = self._get_time()
 
     def _get_time(self):
-        return int(time.time() * 1000)
+        return int(time.time() * 1000000000)

@@ -13,14 +13,12 @@ from .tencode import Encoder
 
 _VSESION = "AISHUV0"
 _LOGLEVEL = {
-    "AllLevel": 0,
     "TraceLevel": 1,
     "DebugLevel": 2,
     "InfoLevel": 3,
     "WarnLevel": 4,
     "ErrorLevel": 5,
-    "FatalLevel": 6,
-    "OffLevel": 7
+    "FatalLevel": 6
 }
 
 
@@ -82,7 +80,7 @@ class SamplerLogger(object):
         span._set_attributes(Attributes(atype, message))
 
     def trace(self, message, span=None, etype=None):
-        if _LOGLEVEL["DebugLevel"] < self._get_level():
+        if _LOGLEVEL["TraceLevel"] < self._get_level():
             return
         if not span:
             span = self.internal_span()
@@ -100,7 +98,7 @@ class SamplerLogger(object):
         span._set_events(Events("Debug", message, etype))
 
     def info(self, message, span=None, etype=None):
-        if _LOGLEVEL["DebugLevel"] < self._get_level():
+        if _LOGLEVEL["InfoLevel"] < self._get_level():
             return
         if not span:
             span = self.internal_span()
@@ -109,7 +107,7 @@ class SamplerLogger(object):
         span._set_events(Events("Info", message, etype))
 
     def warn(self, message, span=None, etype=None):
-        if _LOGLEVEL["DebugLevel"] < self._get_level():
+        if _LOGLEVEL["WarnLevel"] < self._get_level():
             return
         if not span:
             span = self.internal_span()
@@ -118,7 +116,7 @@ class SamplerLogger(object):
         span._set_events(Events("Warn", message, etype))
 
     def error(self, message, span=None, etype=None):
-        if _LOGLEVEL["DebugLevel"] < self._get_level():
+        if _LOGLEVEL["ErrorLevel"] < self._get_level():
             return
         if not span:
             span = self.internal_span()
@@ -127,7 +125,7 @@ class SamplerLogger(object):
         span._set_events(Events("Error", message, etype))
 
     def fatal(self, message, span=None, etype=None):
-        if _LOGLEVEL["DebugLevel"] < self._get_level():
+        if _LOGLEVEL["FatalLevel"] < self._get_level():
             return
         if not span:
             span = self.internal_span()

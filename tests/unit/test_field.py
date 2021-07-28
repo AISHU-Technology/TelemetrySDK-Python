@@ -23,9 +23,9 @@ class TestFieldMetrics(unittest.TestCase):
                   "失败; key和value类型正确,成功")
     def test_set_other_property(self):
         self.assertRaises(TException, self.metrics.set_other_property, 1, 2)
-        self.assertRaises(TException, self.metrics.set_other_property, "1", 2)
+        self.assertRaises(TException, self.metrics.set_other_property, "1", "2")
         self.assertRaises(TException, self.metrics.set_other_property, "Attributes", "2")
-        self.assertIsNone(self.metrics.set_other_property("1", "2"))
+        self.assertIsNone(self.metrics.set_other_property("1", 2))
 
     @allure.title("metrics设置label: label值类型错误,失败; label值类型正确,成功")
     def test_set_label(self):
@@ -34,7 +34,7 @@ class TestFieldMetrics(unittest.TestCase):
 
     @allure.title("获取metrics所有属性和值: 获取成功")
     def test_get_all_property(self):
-        self.metrics.set_other_property("1", "2")
+        self.metrics.set_other_property("1", 2)
         self.metrics.set_label("1")
         self.metrics.set_attributes("1", "2")
         self.assertTrue(self.metrics.get_all_property(), {'1': '2', 'Attributes': {'1': '2'}, 'Labels': ['1']})
