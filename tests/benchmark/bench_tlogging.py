@@ -1,180 +1,135 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import json
 import sys
 
-import benchmark
+from tlogging import SamplerLogger
+from tlogging.exporter import ConsoleExporter
+from tlogging.processor import Processor
+from tlogging.span import LogSpan
+from tlogging.field import Body
 
-from tlogging import SamplerLogger, span
-from tlogging import Metrics
-from tlogging.field import Events, Attributes, ExternalSpans
-from tlogging.tencode import Encoder
-
-RUNS = 500
-_VSESION = "AISHUV0"
+_VSESION = "v1.6.1"
 NULL = '/dev/null'
+logger = SamplerLogger()
+logger.loglevel = "AllLevel"
+span_mess = {
+            "name": "thread test3",
+            "context": {
+                "trace_id": "0xdd59c2fbababb12291e3b161d105a6ce",
+                "span_id": "0xb013695bb644197a",
+                "trace_state": "[]"
+            },
+            "kind": "SpanKind.INTERNAL",
+            "parent_id": "0x9944449c30965edd",
+            "start_time": "2021-09-01T00:59:51.947103Z",
+            "end_time": "2021-09-01T00:59:51.991947Z",
+            "status": {
+                "status_code": "UNSET"
+            },
+            "attributes": {
+                "http.method": "GET",
+                "http.server_name": "127.0.0.1",
+                "http.scheme": "http",
+                "net.host.port": 8082,
+                "http.host": "127.0.0.1:8082",
+                "http.target": "/index",
+                "net.peer.ip": "127.0.0.1",
+                "http.user_agent": "curl/7.29.0",
+                "net.peer.port": 35062,
+                "http.flavor": "1.1",
+                "http.route": "/index",
+                "http.status_code": 200
+            },
+            "events": [
+                {
+                    "name": "start request",
+                    "timestamp": "2021-09-01T00:59:51.947382Z",
+                    "attributes": {
+                        "item.id": "ttstst",
+                        "queue.id": 213123,
+                        "queue.length": 4444
+                    }
+                },
+                {
+                    "name": "start request 1",
+                    "timestamp": "2021-09-01T00:59:51.947422Z",
+                    "attributes": {
+                        "item.id": "ttstst",
+                        "queue.id": 213123,
+                        "queue.length": 4444
+                    }
+                },
+                {
+                    "name": "start request 2",
+                    "timestamp": "2021-09-01T00:59:51.947469Z",
+                    "attributes": {
+                        "item.id": "ttstst",
+                        "queue.id": 213123,
+                        "queue.length": 4444
+                    }
+                },
+                {
+                    "name": "end request",
+                    "timestamp": "2021-09-01T00:59:51.991790Z",
+                    "attributes": {}
+                }
+            ],
+            "links": [
+                {
+                    "context": {
+                        "trace_id": "0xdd59c2fbababb12291e3b161d105a6ce",
+                        "span_id": "0x9944449c30965edd",
+                        "trace_state": "[]"
+                    },
+                    "attributes": {}
+                }
+            ],
+            "resource": {
+                "telemetry.sdk.language": "python",
+                "telemetry.sdk.name": "opentelemetry",
+                "telemetry.sdk.version": "1.5.0",
+                "service.name": "flask-service"
+            }
+        }
+
+exporter = ConsoleExporter()
+_span_processor = Processor(exporter)
+span = LogSpan(_span_processor, Body("test"), "test", ctx=None, attributes=None)._readable_span()
 
 
-class TestTlogger(benchmark.Benchmark):
-    each = RUNS  # allows for differing number of runs
-
-    def setUp(self):
-        self.size = 2500
-        self.logger = SamplerLogger()
-        self.logger.loglevel = "AllLevel"
-        self.span = self.logger.internal_span()
-        self.m1 = Metrics()
-        self.m1.set_attributes("1", "2")
-        self.m1.set_attributes("2", "3")
-        self.m1.set_label("lll")
-        self.test = []
-        self.stdout = sys.stdout
-        f = open('nul', 'w')
-        if sys.platform.startswith("linux"):
-            f = open(NULL, 'w')
-        sys.stdout = f
-
-    def tearDown(self):
-        self.test = None
-        del self.span
-        sys.stdout = self.stdout
-
-    def test_create_internal_span(self):
-        # a = self.logger.internal_span()
-        self.test.append(self.logger.internal_span())
-
-    def test_create_children_span(self):
-        self.test.append(self.logger.children_span(self.span))
-
-    def test_add_logger_info(self):
-        self.logger.debug("ahah", self.span)
-
-    def test_set_tarceid(self):
-        self.logger.set_tarceid("sss", self.span)
-
-    def test_set_metrics(self):
-        self.logger.set_metrics(self.m1, self.span)
-
-    def test_set_parentid(self):
-        self.logger.set_parentid("test", self.span)
-
-    def test_gen_id(self):
-        self.logger.gen_id()
-
-    def test_set_attributes(self):
-        self.logger.set_attributes("test", {"user.id": "01", "act.type": "search topic", "user.dep": "011",
-                                            "act.keyword": "建筑"}, self.span)
-
-    def test__get_level(self):
-        self.logger._get_level()
+def test_add_logger_info_with_stdout(benchmark):
+    benchmark(logger.info, "test")
 
 
-class TestSpan(benchmark.Benchmark):
-    each = RUNS
+def test_add_logger_info_without_stdout(benchmark):
 
-    def setUp(self):
-        self.encoder = Encoder().tprint
-        self.span = span.InternalSpan(version=_VSESION, parent_id="", trace_id="123123",
-                                      span_id="123123", outer_func=self.encoder)
-        self.metrics = Metrics()
-        self.metrics.set_attributes("1", "2")
-        self.metrics.set_attributes("2", "3")
-        self.metrics.set_label("lll")
-        self.eventes = Events("Debug", "hahahh, test")
-        self.attributes = Attributes("test", {"ssss": 1})
-        self.external = ExternalSpans()
-        self.stdout = sys.stdout
-        f = open('nul', 'w')
-        if sys.platform.startswith("linux"):
-            f = open('/dev/null', 'w')
-        sys.stdout = f
-
-    def tearDown(self):
-        self.test = None
-        del self.span
-        sys.stdout = self.stdout
-
-    def test__set_version(self):
-        self.span._set_version("test")
-
-    def test__set_trance_id(self):
-        self.span._set_trance_id("sss")
-
-    def test__get_span_id(self):
-        self.span._get_span_id()
-
-    def test__get_trace_id(self):
-        self.span._get_trace_id()
-
-    def test__set_span_id(self):
-        self.span._set_span_id("sss")
-
-    def test__set_parent_id(self):
-        self.span._set_parent_id("sss")
-
-    def test__set_outer(self):
-        self.span._set_outer(self.encoder)
-
-    def test__set_attributes(self):
-        self.span._set_attributes(self.attributes)
-
-    def test__set_metrics(self):
-        self.span._set_metrics(self.metrics)
-
-    def test__set_events(self):
-        self.span._set_events(self.eventes)
-
-    def test__init_body(self):
-        self.span._init_body()
-
-    def test__set_end(self):
-        self.span._set_end()
-
-    def test__get_time(self):
-        self.span._get_time()
+    stdout = sys.stdout
+    f = open('nul', 'w')
+    if sys.platform.startswith("linux"):
+        f = open(NULL, 'w')
+    sys.stdout = f
+    benchmark(logger.info, "test")
+    sys.stdout = stdout
 
 
-class TestFieldMetrics(benchmark.Benchmark):
-    each = RUNS
-
-    def setUp(self):
-        self.metrics = Metrics()
-
-    def test_set_attributes(self):
-        self.metrics.set_attributes("1", "2")
-
-    def test_set_other_property(self):
-        self.metrics.set_other_property("1", "2")
-
-    def test_set_label(self):
-        self.metrics.set_label("1")
-
-    def test_get_all_property(self):
-        self.metrics.get_all_property()
+def test_sys_stdout(benchmark):
+    mess = json.dumps(span_mess)
+    benchmark(sys.stdout.write, mess)
 
 
-class TestTencode(benchmark.Benchmark):
-    each = RUNS
-
-    def setUp(self):
-        self.encoder = Encoder("json")
-        self.stdout = sys.stdout
-        f = open('nul', 'w')
-        if sys.platform.startswith("linux"):
-            f = open(NULL, 'w')
-        sys.stdout = f
-
-    def tearDown(self):
-        sys.stdout = self.stdout
-
-    def test_set_encoder(self):
-        self.encoder.set_encoder("json")
-
-    def test_tprint(self):
-        self.encoder.tprint({1: 2, 3: 4})
-
-    def test__encode_to_json(self):
-        self.encoder._encode_to_json({1: 2, 3: 4})
+def test_json_dumps(benchmark):
+    benchmark(json.dumps, span_mess)
 
 
-if __name__ == '__main__':
-    benchmark.main(format="markdown", numberFormat="%.4g")
+def test_span_tojson(benchmark):
+    benchmark(span.to_json)
+
+
+def test_json_stdout(benchmark):
+    benchmark(test)
+
+
+def test():
+    sys.stdout.write(json.dumps(span_mess))
+    sys.stdout.flush()

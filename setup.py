@@ -22,11 +22,17 @@ if __name__ == '__main__':
     try:
         source_path = os.path.join(script_path(), "tlogging")
         setup(name='tlogging',
-              version="1.0.0",
+              version="2.0.0",
               package_dir={"tlogging": source_path},
               packages=["tlogging"],
               zip_safe=False,
-              author="Copyright (c) Eisoo Software Inc.",
+              install_requires=['opentelemetry-api==1.5.0'],
+              tests_require=[
+                  'allure-pytest',
+                  'pytest',
+                  'benchmark',
+              ],
+              author="Copyright (c) Aishu Software Inc.",
               description="Telemetry python SDK.",)
     finally:
         if os.path.exists('./build'):

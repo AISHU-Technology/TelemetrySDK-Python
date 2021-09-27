@@ -8,42 +8,114 @@ pip install .
 ```
 
 ## 使用方式
+### 记录日志,不记录trace
+```
+from tlogging import SamplerLogger
+
+
+logger = SamplerLogger()
+logger.loglevel = "TraceLevel"
+# 非结构化日志
+logger.trace("hello, this is threading test")
+# 结构化日志
+logger.trace({"a": 1, "b": 2}, etype="test")
+```
+### 记录日志并添加attributes,不记录trace
+```
+from tlogging import SamplerLogger, Attributes
+
+
+logger = SamplerLogger()
+logger.loglevel = "TraceLevel"
+
+
+attributes = attributes=Attributes({"a": "b"}, atype="test")
+logger.trace("hello, this is threading test", attributes=attributes)
+```
+### 记录日志,也记录trace
+#### 要先安装opentelemetry-sdk及相关依赖库(如opentelemetry-instrumentation-tornado、 opentelemetry-exporter-jaeger等)
+#### 依赖库版本和opentelemetry-api版本一致
+```
+from opentelemetry import trace
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.resources import SERVICE_NAME, Resource
+from opentelemetry.sdk.trace.export import (
+    BatchSpanProcessor,
+    ConsoleSpanExporter,
+)
+
+from tlogging import SamplerLogger, Attributes
+
+
+trace.set_tracer_provider(
+    TracerProvider(
+        resource=Resource.create({SERVICE_NAME: "test"})
+    )
+)
+trace.get_tracer_provider().add_span_processor(
+    BatchSpanProcessor(ConsoleSpanExporter())
+)
+tracer = trace.get_tracer(__name__)
+logger = SamplerLogger()
+logger.loglevel = "TraceLevel"
+
+with tracer.start_as_current_span("example-log2"):
+    attributes = attributes=Attributes({"a": "b"}, atype="test")
+    logger.trace("hello, this is threading test", attributes=attributes)
+```
+### 多线程任务记录日志,也记录trace
+#### 要先安装opentelemetry-sdk及相关依赖库(如opentelemetry-instrumentation-tornado、 opentelemetry-exporter-jaeger等)
+#### 依赖库版本和opentelemetry-api版本一致
 ```
 import threading
-
-from tlogging import SamplerLogger
-from tlogging import Metrics
-
-
-logger = SamplerLogger()   # 创建日志管理器
-logger.loglevel = "TraceLevel"  # 设置日志级别
-span = logger.internal_span()  # 创建span
-logger.set_attributes("test", {"user.id": "01", "act.type": "search topic", "user.dep": "011",
-                               "act.keyword": "建筑"}, span)  # 设置attributes，attributes是用来描述sapn的信息
-logger.debug("debug msg!", span)  # 写日志
-logger.debug(["debug msg1!"], span, "sss") # 当日志为非str类型时，一定要传入etype，用来描述message类型
-logger.debug("debug msg2!", span)
-m1 = Metrics()  # 创建metrics实例
-m1.set_attributes("1", "2")  # 给metrics设置attributes
-m1.set_attributes("2", "3")
-m1.set_label("lll")   # 给metrics设置label
-logger.set_metrics(m1, span)  # 给span设置metrics
-children = logger.children_span(span)  # 创建子span
-logger.debug("debug msg! children0", children)  # 往子span中写入日志
-children1 = logger.children_span(children)  # 创建孙span
-logger.debug("debug msg! children1", children1)  # 往孙span中写入日志
  
-def test():                 # 创建线程任务
-    logger.debug("debug msg test!", span)
-    logger.debug("debug msg test! children", children)
-    logger.debug("debug msg test! children1", children1)
-
-t1 = threading.Thread(target=test)  # 创建多线程，分别往三个span中写入日志
-t2 = threading.Thread(target=test)
-t1.start()
-t2.start()
-t1.join()
-t2.join()
-span.signal()  # 释放span，输出标准数据
-logger.close()  # 释放所有未释放的span(已释放的span将不会再次释放)
+from opentelemetry import trace
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.resources import SERVICE_NAME, Resource
+from opentelemetry.trace.propagation.tracecontext import TraceContextTextMapPropagator
+from opentelemetry.sdk.trace.export import (
+    BatchSpanProcessor,
+    ConsoleSpanExporter,
+)
+ 
+from tlogging import SamplerLogger, Attributes
+ 
+logger = SamplerLogger()
+logger.loglevel = "TraceLevel"
+trace.set_tracer_provider(
+    TracerProvider(
+        resource=Resource.create({SERVICE_NAME: "test"})
+    )
+)
+trace.get_tracer_provider().add_span_processor(
+    BatchSpanProcessor(ConsoleSpanExporter())
+)
+tracer = trace.get_tracer(__name__)
+prop = TraceContextTextMapPropagator()
+carrier = {}
+ 
+ 
+def test(num, ctx=None):
+    logger.trace("hello, this is threading test" + str(num), ctx=ctx)
+ 
+ 
+with tracer.start_as_current_span("example-log2"):
+    logger.trace("test", attributes=Attributes({"a": "b"}, atype="test"))
+    logger.trace("test1")
+    logger.trace("test2")
+ 
+logger.trace("test3")
+ 
+with tracer.start_as_current_span("thread-log2"):
+    prop.inject(carrier=carrier)
+    ctx = prop.extract(carrier=carrier)
+    t1 = threading.Thread(target=test, args=(1, ctx))
+    t2 = threading.Thread(target=test, args=(2, ctx))
+    t3 = threading.Thread(target=test, args=(3, ctx))
+    t1.start()
+    t2.start()
+    t3.start()
+    t1.join()
+    t2.join()
+    t3.join()
 ```

@@ -1,17 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import hashlib
-import os
+import atexit
 import threading
-import weakref
 
-from .span import InternalSpan
-from .field import Events, Attributes
+from .span import Logger
+from .field import Attributes, Body
 from .texception import TException
-from .tencode import Encoder
+from .processor import Processor
+from .exporter import ConsoleExporter
 
 
-_VSESION = "AISHUV0"
 _LOGLEVEL = {
     "TraceLevel": 1,
     "DebugLevel": 2,
@@ -24,10 +22,13 @@ _LOGLEVEL = {
 
 class SamplerLogger(object):
     _instance_lock = threading.Lock()
-    __span_set = weakref.WeakSet()
-
     loglevel = "InfoLevel"
-    outer = None
+    exporter = ConsoleExporter()
+    _span_processor = Processor(exporter)
+
+    def __init__(self):
+        self.logger = Logger(self._span_processor)
+        self._atexit_handler = atexit.register(self.shutdown)
 
     def __new__(cls, *args, **kwargs):
         if not hasattr(SamplerLogger, "_instance"):
@@ -36,108 +37,65 @@ class SamplerLogger(object):
                     SamplerLogger._instance = object.__new__(cls)
         return SamplerLogger._instance
 
-    def internal_span(self):
-        if not self.outer:
-            self.outer = Encoder().tprint
-        inter_span = InternalSpan(version=_VSESION, parent_id="", trace_id=self.gen_id(),
-                                  span_id=self.gen_id(), outer_func=self.outer)
-        self.__span_set.add(inter_span)
-        return inter_span
-
-    def children_span(self, span):
-        if not self.outer:
-            self.outer = Encoder().tprint
-        if not isinstance(span, InternalSpan):
-            raise TException("Object is not of type Span")
-        trance_id = span._get_trace_id()
-        parent_id = span._get_span_id()
-        children_span = InternalSpan(version=_VSESION, parent_id=parent_id, trace_id=trance_id,
-                                     span_id=self.gen_id(), outer_func=self.outer)
-        self.__span_set.add(children_span)
-        return children_span
-
-    def set_tarceid(self, tid, span):
-        if not isinstance(span, InternalSpan):
-            raise TException("Object is not of type Span")
-        span._set_trance_id(tid)
-
-    def set_metrics(self, metrics, span):
-        if not isinstance(span, InternalSpan):
-            raise TException("Object is not of type Span")
-        span._set_metrics(metrics)
-
-    def set_parentid(self, pid, span):
-        if not isinstance(span, InternalSpan):
-            raise TException("Object is not of type Span")
-        span._set_parent_id(pid)
-
-    def gen_id(self):
-        return hashlib.sha256(os.urandom(64)).hexdigest()
-
-    def set_attributes(self, atype, message, span):
-        if not isinstance(span, InternalSpan):
-            raise TException("Object is not of type Span")
-        span._set_attributes(Attributes(atype, message))
-
-    def trace(self, message, span=None, etype=None):
+    def trace(self, message, attributes=None, etype=None, ctx=None):
         if _LOGLEVEL["TraceLevel"] < self._get_level():
             return
-        if not span:
-            span = self.internal_span()
-        elif not isinstance(span, InternalSpan):
-            raise TException("Object is not of type Span")
-        span._set_events(Events("Trace", message, etype))
+        if attributes and not isinstance(attributes, Attributes):
+            raise TException("Object is not of type Attributes")
+        with self.logger.start_span(Body(message, etype), "Trace", ctx=ctx) as log_span:
+            if attributes:
+                log_span.set_attributes(attributes)
 
-    def debug(self, message, span=None, etype=None):
+    def debug(self, message, attributes=None, etype=None, ctx=None):
         if _LOGLEVEL["DebugLevel"] < self._get_level():
             return
-        if not span:
-            span = self.internal_span()
-        elif not isinstance(span, InternalSpan):
-            raise TException("Object is not of type Span")
-        span._set_events(Events("Debug", message, etype))
+        if attributes and not isinstance(attributes, Attributes):
+            raise TException("Object is not of type Attributes")
+        with self.logger.start_span(Body(message, etype), "Debug", ctx=ctx) as log_span:
+            if attributes:
+                log_span.set_attributes(attributes)
 
-    def info(self, message, span=None, etype=None):
+    def info(self, message, attributes=None, etype=None, ctx=None):
         if _LOGLEVEL["InfoLevel"] < self._get_level():
             return
-        if not span:
-            span = self.internal_span()
-        elif not isinstance(span, InternalSpan):
-            raise TException("Object is not of type Span")
-        span._set_events(Events("Info", message, etype))
+        if attributes and not isinstance(attributes, Attributes):
+            raise TException("Object is not of type Attributes")
+        with self.logger.start_span(Body(message, etype), "Info", ctx=ctx) as log_span:
+            if attributes:
+                log_span.set_attributes(attributes)
 
-    def warn(self, message, span=None, etype=None):
+    def warn(self, message, attributes=None, etype=None, ctx=None):
         if _LOGLEVEL["WarnLevel"] < self._get_level():
             return
-        if not span:
-            span = self.internal_span()
-        elif not isinstance(span, InternalSpan):
-            raise TException("Object is not of type Span")
-        span._set_events(Events("Warn", message, etype))
+        if attributes and not isinstance(attributes, Attributes):
+            raise TException("Object is not of type Attributes")
+        with self.logger.start_span(Body(message, etype), "Warn", ctx=ctx) as log_span:
+            if attributes:
+                log_span.set_attributes(attributes)
 
-    def error(self, message, span=None, etype=None):
+    def error(self, message, attributes=None, etype=None, ctx=None):
         if _LOGLEVEL["ErrorLevel"] < self._get_level():
             return
-        if not span:
-            span = self.internal_span()
-        elif not isinstance(span, InternalSpan):
-            raise TException("Object is not of type Span")
-        span._set_events(Events("Error", message, etype))
+        if attributes and not isinstance(attributes, Attributes):
+            raise TException("Object is not of type Attributes")
+        with self.logger.start_span(Body(message, etype), "Error", ctx=ctx) as log_span:
+            if attributes:
+                log_span.set_attributes(attributes)
 
-    def fatal(self, message, span=None, etype=None):
+    def fatal(self, message, attributes=None, etype=None, ctx=None):
         if _LOGLEVEL["FatalLevel"] < self._get_level():
             return
-        if not span:
-            span = self.internal_span()
-        elif not isinstance(span, InternalSpan):
-            raise TException("Object is not of type Span")
-        span._set_events(Events("Fatal", message, etype))
-
-    def close(self):
-        for span in self.__span_set:
-            if span._Flag:
-                span.signal()
-        self.__span_set = weakref.WeakSet()
+        if attributes and not isinstance(attributes, Attributes):
+            raise TException("Object is not of type Attributes")
+        with self.logger.start_span(Body(message, etype), "Fatal", ctx=ctx) as log_span:
+            if attributes:
+                log_span.set_attributes(attributes)
 
     def _get_level(self):
         return _LOGLEVEL.get(self.loglevel, 3)
+
+    def shutdown(self):
+        self._span_processor.shutdown()
+        if self._atexit_handler is not None:
+            atexit.unregister(self._atexit_handler)
+            self._atexit_handler = None
