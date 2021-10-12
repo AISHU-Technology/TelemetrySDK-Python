@@ -9,7 +9,7 @@ class Resources(object):
 
     def __init__(self):
         self.__hostname = self._get_hostname()
-        self.__telemetry_sdk_name = "Aishu custom opentelemetry"
+        self.__telemetry_sdk_name = "Telemetry SDK"
         self.__telemetry_sdk_version = "2.0.0"
         self.__telemetry_sdk_language = "python"
 
