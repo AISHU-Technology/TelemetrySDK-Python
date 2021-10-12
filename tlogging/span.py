@@ -140,7 +140,7 @@ class LogSpan(_Span):
         self.__attributes = attributes
 
     def _get_time(self):
-        return int(time.time() * 1e9)
+        return int(time.time() * 1e3)
 
     def _gen_span_id(self):
         return random.getrandbits(64)
