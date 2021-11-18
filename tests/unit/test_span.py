@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import unittest
-
 from tlogging import span
+from tlogging.span import check_flag
 from tlogging.field import Attributes, Body
 from tlogging.exporter import ConsoleExporter
 from tlogging.processor import Processor
@@ -38,3 +38,18 @@ class TestSpan(unittest.TestCase):
 
     def test__readable_span(self):
         self.assertIsInstance(self.span._readable_span(), span._Span)
+
+    def test_to_json(self):
+        self.span.to_json()
+
+    def test_info(self):
+        span_info = span.LogSpan(self.span_processor, self.body, self.severity_text, ctx=None, attributes=Attributes("test", "ssss"))
+        check_flag(span_info.version)
+        self.assertIsNotNone(span_info.version)
+        self.assertIsNotNone(span_info.trace_id)
+        self.assertIsNotNone(span_info.span_id)
+        self.assertIsNotNone(span_info.severity_text)
+        self.assertIsNotNone(span_info.timestamp)
+        self.assertIsNotNone(span_info.resources)
+        self.assertIsNotNone(span_info.attributes)
+        self.assertIsNotNone(span_info.body)

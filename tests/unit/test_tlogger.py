@@ -24,28 +24,49 @@ class TestTlogger(unittest.TestCase):
         self.assertIsNone(self.logger.trace("sss", attributes=Attributes("test attributes", "test")))
         self.assertRaises(TException, self.logger.trace, ["sss"])
         self.assertRaises(TException, self.logger.trace, "sss", etype=123)
+        self.assertRaises(TException, self.logger.trace,"sss",attributes={"aaa"})
+        self.logger.loglevel = "FatalLevel"
+        self.assertIsNone(self.logger.trace("sss", attributes=Attributes("test attributes", "test")))
 
     @allure.title("tlogging设置debug级别日志: 设置成功")
     def test_debug(self):
-        self.assertIsNone(self.logger.debug("sss"))
+        self.assertIsNone(self.logger.debug("sss",attributes=Attributes("test attributes", "test")))
+        self.assertRaises(TException, self.logger.debug,"sss",attributes={"aaa"})
+        self.logger.loglevel = "FatalLevel"
+        self.assertIsNone(self.logger.debug("sss", attributes=Attributes("test attributes", "test")))
 
     @allure.title("tlogging设置info级别日志: 设置成功")
     def test_info(self):
-        self.assertIsNone(self.logger.info("sss"))
+        self.assertIsNone(self.logger.info("sss",attributes=Attributes("test attributes", "test")))
+        self.assertRaises(TException, self.logger.info,"sss",attributes={"aaa"})
+        self.logger.loglevel = "FatalLevel"
+        self.assertIsNone(self.logger.info("sss", attributes=Attributes("test attributes", "test")))
 
     @allure.title("tlogging设置warn级别日志:设置成功")
     def test_warn(self):
-        self.assertIsNone(self.logger.warn("sss"))
+        self.assertIsNone(self.logger.warn("sss",attributes=Attributes("test attributes", "test")))
+        self.assertRaises(TException, self.logger.warn,"sss",attributes={"aaa"})
+        self.logger.loglevel = "FatalLevel"
+        self.assertIsNone(self.logger.warn("sss", attributes=Attributes("test attributes", "test")))
 
     @allure.title("tlogging设置error级别日志: 设置成功")
     def test_error(self):
-        self.assertIsNone(self.logger.error("sss"))
+        self.assertIsNone(self.logger.error("sss",attributes=Attributes("test attributes", "test")))
+        self.assertRaises(TException, self.logger.error,"sss",attributes={"aaa"})
+        self.logger.loglevel = "FatalLevel"
+        self.assertIsNone(self.logger.error("sss", attributes=Attributes("test attributes", "test")))
 
     @allure.title("tlogging设置fatal级别日志: 设置成功")
     def test_fatal(self):
-        self.assertIsNone(self.logger.fatal("sss"))
+        self.assertIsNone(self.logger.fatal("sss",attributes=Attributes("test attributes", "test")))
+        self.assertRaises(TException, self.logger.fatal,"sss",attributes={"aaa"})
+        self.logger.loglevel = "FatalLevel"
+        self.assertIsNone(self.logger.fatal("sss", attributes=Attributes("test attributes", "test")))
 
     @allure.title("tlogging设置日志级别: 日志级别非法, 修改不成功,日志级别为默认级别")
     def test__get_level(self):
         self.logger.loglevel = "ssss"
         self.assertTrue(self.logger._get_level(), 3)
+
+    def test_shutdown(self):
+        self.logger.shutdown()
