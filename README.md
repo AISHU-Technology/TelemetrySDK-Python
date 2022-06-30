@@ -2,7 +2,7 @@
 
 ## 安装方式
 ```
-git clone git@gitlab.aishu.cn:anyrobot/observability/telemetrysdk/telemetry-python.git
+git clone ssh://devops.aishu.cn:22/AISHUDevOps/ONE-Architecture/_git/TelemetrySDK-Python
 cd telemetry-python
 pip install .
 ```
