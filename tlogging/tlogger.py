@@ -23,10 +23,11 @@ _LOGLEVEL = {
 class SamplerLogger(object):
     _instance_lock = threading.Lock()
     loglevel = "InfoLevel"
-    exporter = ConsoleExporter()
-    _span_processor = Processor(exporter)
 
-    def __init__(self):
+    def __init__(self, exporter=None):
+        if not exporter:
+            exporter = ConsoleExporter()
+        self._span_processor = Processor(exporter)
         self.logger = Logger(self._span_processor)
         self._atexit_handler = atexit.register(self.shutdown)
 
