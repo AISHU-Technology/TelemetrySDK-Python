@@ -2,8 +2,8 @@
 
 ## 安装方式
 ```
-git clone ssh://devops.aishu.cn:22/AISHUDevOps/ONE-Architecture/_git/TelemetrySDK-Python
-cd telemetry-python
+git clone ssh://devops.aishu.cn:22/AISHUDevOps/ONE-Architecture/_git/TelemetrySDK-Python -b 2.1.0
+cd TelemetrySDK-Python
 pip install .
 ```
 
