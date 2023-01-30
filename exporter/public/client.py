@@ -27,7 +27,7 @@ class Client(ABC):
         pass
 
     @abstractmethod
-    def upload_data(self, data: str) -> None:
+    def upload_data(self, data: str) -> bool:
         """
         UploadData用来发送任意数据，可能会并发调用。
         """
@@ -40,7 +40,7 @@ class StdoutClient(Client):
     """
 
     def __init__(self, path: Optional[str] = None):
-        if path is not str or path.strip() == "":
+        if not isinstance(path, str) or path.strip() == "":
             path = "./AnyRobotData.txt"
         self._path = path
         self._stopped = False
@@ -52,7 +52,7 @@ class StdoutClient(Client):
         self._stopped = True
         return
 
-    def upload_data(self, data: str) -> None:
+    def upload_data(self, data: str) -> bool:
         if not self._stopped:
             stdout.write(data)
             stdout.flush()
@@ -60,7 +60,7 @@ class StdoutClient(Client):
                 file.write(data)
                 file.flush()
             file.close()
-        return
+        return False
 
 
 class HTTPClient(Client):
@@ -73,7 +73,6 @@ class HTTPClient(Client):
         for o in options:
             cfg = o.apply(cfg)
         self._http_config = cfg
-        self._retry_config = None
         self._http_client = requests.Session()
         self._stopped = False
 
@@ -85,7 +84,10 @@ class HTTPClient(Client):
         self._http_client.close()
         return
 
-    def upload_data(self, data: str) -> None:
+    def upload_data(self, data: str) -> bool:
+        """
+        ???
+        """
         resp = self._http_client.post(
             url=self._http_config.endpoint,
             data=data.encode(encoding="utf8"),
@@ -95,8 +97,8 @@ class HTTPClient(Client):
         match resp.status_code:
             case 200, 204:
                 print("success")
-            case 400:
-                # self._retry_config
-                pass
-
-        return
+            case _:
+                print("resp.status_code")
+                print(resp)
+                return True
+        return False

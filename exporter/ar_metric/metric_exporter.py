@@ -1,14 +1,18 @@
-from opentelemetry.sdk.metrics._internal.export import (
+from opentelemetry.sdk.metrics.export import (
     MetricExporter,
     MetricExportResult,
 )
-from opentelemetry.sdk.metrics._internal.point import MetricsData
-from exporter.common.ar_metric import  anyrobot_metrics_from_resource_metrics
-from exporter.public.client import Client, StdoutClient
+from opentelemetry.sdk.metrics.export import MetricsData
+from exporter.common.ar_metric import anyrobot_metrics_from_resource_metrics
+from exporter.public.client import Client
 from exporter.public.exporter import Exporter
 
 
 class ARMetricExporter(MetricExporter):
+    """
+    ARMetricExporter 导出数据到AnyRobot Feed Ingester的 Metric 数据接收器。
+    """
+
     def __init__(self, client: Client):
         self._exporter = Exporter(client)
         MetricExporter.__init__(self)
@@ -19,15 +23,28 @@ class ARMetricExporter(MetricExporter):
         timeout_millis: float = 10_000,
         **kwargs,
     ) -> MetricExportResult:
-        self.export_metrics(metrics_data)
+        """
+        判断发送成功或失败。
+        """
+        if self.export_metrics(metrics_data):
+            return MetricExportResult.FAILURE
         return MetricExportResult.SUCCESS
 
     def force_flush(self, timeout_millis: float = 10_000) -> bool:
+        """
+        没有缓存，所以不操作。
+        """
         return True
 
     def shutdown(self, timeout_millis: float = 30_000, **kwargs) -> None:
-        self._exporter.client().stop()
+        """
+        关闭实际写数据的 Client。
+        """
+        self._exporter.client.stop()
 
-    def export_metrics(self, metrics_data: MetricsData):
+    def export_metrics(self, metrics_data: MetricsData) -> bool:
+        """
+        先转换数据和golang统一。
+        """
         data = anyrobot_metrics_from_resource_metrics(metrics_data)
-        self._exporter.client().upload_data(data)
+        return self._exporter.client.upload_data(data)
