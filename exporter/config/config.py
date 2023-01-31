@@ -1,19 +1,14 @@
 from abc import abstractmethod, ABC
+from typing import Dict
 
 
 class Config:
     def __init__(self):
-        self.insecure = True
         self.endpoint = "localhost:5678"
-        self.compression = 0
-        self.timeout = 10
-        self.headers = {}
-        self.tls = {}
-
-
-@staticmethod
-def get_default_config() -> Config:
-    return Config()
+        self.compression = 1
+        self.timeout = 100
+        self.headers = dict[str, str]
+        self.max_elapsed_time = 100
 
 
 class Option(ABC):

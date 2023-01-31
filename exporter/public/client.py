@@ -1,10 +1,19 @@
 from abc import abstractmethod, ABC
 from sys import stdout
-from typing import Optional
-
+from time import sleep
+from typing import Optional, Generator, Any
+from io import BytesIO
 import requests
+import gzip
+import logging
 
-from exporter.config.config import Option, get_default_config, Config
+from exporter.config.config import Option, Config
+from exporter.custom_errors.error_code import *
+from exporter.public.public import Compression
+import backoff
+
+_is_backoff_v2 = next(backoff.expo()) is None
+_logger = logging.getLogger(__name__)
 
 
 class Client(ABC):
@@ -20,7 +29,7 @@ class Client(ABC):
         pass
 
     @abstractmethod
-    def stop(self) -> None:
+    def stop(self) -> bool:
         """
         用来关闭连接，它只会被调用一次因此不用担心幂等性问题，但是可能存在并发调用，需要上层Exporter通过sync.Once来控制。
         """
@@ -43,23 +52,20 @@ class StdoutClient(Client):
         if not isinstance(path, str) or path.strip() == "":
             path = "./AnyRobotData.txt"
         self._path = path
-        self._stopped = False
 
     def path(self) -> str:
         return self._path
 
-    def stop(self) -> None:
-        self._stopped = True
-        return
+    def stop(self) -> bool:
+        return False
 
     def upload_data(self, data: str) -> bool:
-        if not self._stopped:
-            stdout.write(data)
-            stdout.flush()
-            with open(self._path, "a") as file:
-                file.write(data)
-                file.flush()
-            file.close()
+        stdout.write(data)
+        stdout.flush()
+        with open(self._path, "a") as file:
+            file.write(data)
+            file.flush()
+        file.close()
         return False
 
 
@@ -74,31 +80,70 @@ class HTTPClient(Client):
             cfg = o.apply(cfg)
         self._http_config = cfg
         self._http_client = requests.Session()
-        self._stopped = False
+        self._exporting_data = None
 
     def path(self) -> str:
         return self._http_config.endpoint
 
-    def stop(self) -> None:
-        self._stopped = True
+    def stop(self) -> bool:
         self._http_client.close()
-        return
+        return False
+
+    @staticmethod
+    def _retry(max_elapsed_time: float) -> Generator[float, Any, None]:
+        gen = backoff.expo(max_value=max_elapsed_time)
+        if _is_backoff_v2:
+            gen.send(None)
+        return gen
 
     def upload_data(self, data: str) -> bool:
         """
-        ???
+        实际发送可观测性数据的函数。
         """
-        resp = self._http_client.post(
-            url=self._http_config.endpoint,
-            data=data.encode(encoding="utf8"),
-            headers=self._http_config.headers,
-            verify=None,
-        )
-        match resp.status_code:
-            case 200, 204:
-                print("success")
-            case _:
-                print("resp.status_code")
-                print(resp)
+        # 设置压缩方式和数据来源
+        self._http_config.headers["Service-Language"] = "Python"
+        match self._http_config.compression:
+            case Compression.NoCompression:
+                self._exporting_data = data.encode(encoding="utf8")
+                self._http_config.headers["Content-Encoding"] = "json"
+            case Compression.GzipCompression:
+                gzip_data = BytesIO()
+                with gzip.GzipFile(fileobj=gzip_data, mode="w") as gzip_stream:
+                    gzip_stream.write(data)
+                self._exporting_data = gzip_data.getvalue()
+                self._http_config.headers["Content-Encoding"] = "gzip"
+
+        for delay in self._retry(self._http_config.max_elapsed_time):
+            if delay == self._http_config.max_elapsed_time:
                 return True
+            resp = self._http_client.post(
+                url=self._http_config.endpoint,
+                data=self._exporting_data,
+                headers=self._http_config.headers,
+                verify=None,
+                timeout=self._http_config.timeout,
+            )
+            match resp.status_code:
+                case 200, 204:
+                    return False
+                case 400:
+                    _logger.info(InvalidFormat)
+                    return True
+                case 404:
+                    _logger.info(JobIdNotFound)
+                    return True
+                case 413:
+                    _logger.info(PayloadTooLarge)
+                    return True
+                case 429, 500, 503:
+                    self._http_config.headers["Retry-After"] = "true"
+                    sleep(delay)
+                    continue
+                case _:
+                    _logger.info(
+                        "Failed to export , status code: %s, reason: %s",
+                        resp.status_code,
+                        resp.text,
+                    )
+                    return True
         return False

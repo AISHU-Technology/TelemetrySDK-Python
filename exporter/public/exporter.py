@@ -18,15 +18,16 @@ class Exporter:
     def name(self) -> str:
         return self._name
 
-    def shutdown(self) -> None:
+    def shutdown(self) -> bool:
+        if self._stopped:
+            return False
         self._stopped = True
-        self.client.stop()
-        return
+        return self.client.stop()
 
-    def export_data(self, data: str) -> None:
+    def export_data(self, data: str) -> bool:
         if not self._stopped and len(data) != 0:
-            self.client.upload_data(data)
-        return
+            return self.client.upload_data(data)
+        return False
 
     @property
     def client(self) -> Client:
