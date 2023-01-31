@@ -5,20 +5,11 @@ from opentelemetry.metrics import Observation, CallbackOptions
 from opentelemetry.sdk.metrics import MeterProvider
 from opentelemetry.sdk.metrics.export import (
     PeriodicExportingMetricReader,
-    ConsoleMetricExporter,
 )
-from opentelemetry.sdk.resources import SERVICE_NAME, Resource, SERVICE_INSTANCE_ID
 
-from exporter.public.public import WithAnyRobotURL, WithCompression, Compression
 from exporter.public.client import StdoutClient, HTTPClient
-from exporter.ar_metric.metric_exporter import ARMetricExporter
-
-resource = Resource(
-    attributes={
-        SERVICE_NAME: "service_name",
-        SERVICE_INSTANCE_ID: 1,
-    }
-)
+from exporter.ar_metric.metric_exporter import ARMetricExporter, meter
+from exporter.resource.resource import metric_resource
 
 reader = PeriodicExportingMetricReader(
     ARMetricExporter(
@@ -32,10 +23,8 @@ reader = PeriodicExportingMetricReader(
         StdoutClient("./AnyRobotMetric.txt")
     )
 )
-provider = MeterProvider(resource=resource, metric_readers=[reader])
+provider = MeterProvider(resource=metric_resource(), metric_readers=[reader])
 metrics.set_meter_provider(provider)
-
-meter = provider.get_meter("name", "version", "127.0.0.1")
 
 
 def observable_gauge_func(options: CallbackOptions) -> Iterable[Observation]:

@@ -6,6 +6,8 @@ from opentelemetry.sdk.metrics.export import MetricsData
 from exporter.common.ar_metric import anyrobot_metrics_from_resource_metrics
 from exporter.public.client import Client
 from exporter.public.exporter import Exporter
+from opentelemetry import metrics
+from exporter.version.version import *
 
 
 class ARMetricExporter(MetricExporter):
@@ -14,7 +16,7 @@ class ARMetricExporter(MetricExporter):
     """
 
     def __init__(self, client: Client):
-        self._exporter = Exporter(client)
+        self._exporter: Exporter = Exporter(client)
         MetricExporter.__init__(self)
 
     def export(
@@ -48,3 +50,8 @@ class ARMetricExporter(MetricExporter):
         """
         data = anyrobot_metrics_from_resource_metrics(metrics_data)
         return self._exporter.client.upload_data(data)
+
+
+meter = metrics.get_meter_provider().get_meter(
+    MetricInstrumentationName, MetricInstrumentationVersion, MetricInstrumentationURL
+)

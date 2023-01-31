@@ -1,14 +1,19 @@
 from abc import abstractmethod, ABC
-from typing import Dict
+from enum import IntEnum
+
+
+class Compression(IntEnum):
+    NoCompression = 0
+    GzipCompression = 1
 
 
 class Config:
     def __init__(self):
-        self.endpoint = "localhost:5678"
-        self.compression = 1
-        self.timeout = 100
-        self.headers = dict[str, str]
-        self.max_elapsed_time = 100
+        self.endpoint: str = "localhost:5678"
+        self.compression: Compression = Compression.GzipCompression
+        self.timeout: float = 10
+        self.headers: dict[str, str] = {}
+        self.max_elapsed_time: float = 60
 
 
 class Option(ABC):

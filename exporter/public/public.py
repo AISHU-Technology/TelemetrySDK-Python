@@ -2,7 +2,7 @@ import re
 from enum import IntEnum
 from typing import Union
 
-from exporter.config.config import Option, Config
+from exporter.config.config import Option, Config, Compression
 from exporter.custom_errors.error_code import *
 
 
@@ -20,11 +20,6 @@ class WithAnyRobotURL(Option):
     def apply(self, cfg: Config) -> Config:
         cfg.endpoint = self._url
         return cfg
-
-
-class Compression(IntEnum):
-    NoCompression = 0
-    GzipCompression = 1
 
 
 class WithCompression(Option):
@@ -45,11 +40,11 @@ class WithCompression(Option):
 
 class WithTimeout(Option):
     """
-    设置HTTP连接超时时间。
+    设置HTTP连接超时时间，单位秒。
     """
 
     def __init__(self, timeout: int):
-        if timeout <= 0 or timeout > 1000:
+        if timeout <= 0 or timeout > 120:
             raise Exception(DurationTooLong)
         self._timeout = timeout
 
@@ -73,11 +68,11 @@ class WithHeader(Option):
 
 class WithRetry(Option):
     """
-    设置重发规则。
+    设置重发规则，最长重发时间，单位秒。
     """
 
     def __init__(self, max_elapsed_time: float):
-        if max_elapsed_time < 0 or max_elapsed_time > 1000:
+        if max_elapsed_time <= 0 or max_elapsed_time > 600:
             raise Exception(RetryTooLong)
         self._max_elapsed_time = max_elapsed_time
 
