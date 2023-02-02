@@ -1,13 +1,15 @@
 import json
 from typing import Union
 
-from opentelemetry.sdk.resources import LabelValue, Attributes,Resource
+from opentelemetry.sdk.resources import LabelValue, Attributes, Resource
 from opentelemetry.util.types import Attributes as Another
+
 
 def anyrobot_resource_from_resource(data: Resource) -> str:
     return json.dumps(
         obj=json.loads(anyrobot_attributes_from_key_values(data.attributes))
     )
+
 
 def anyrobot_attributes_from_key_values(data: Union[Attributes, Another]) -> str:
     return json.dumps(

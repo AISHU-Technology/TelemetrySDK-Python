@@ -28,13 +28,12 @@ metrics.set_meter_provider(provider)
 
 
 def observable_gauge_func(options: CallbackOptions) -> Iterable[Observation]:
-    attributes = {"用户信息": "用户数峰值"}
+    attributes = {"用户信息": "在线用户数"}
     yield Observation(9, attributes)
 
 
 def add(x: int, y: int) -> int:
-    attributes = {"用户信息": "在线用户数"}
-    gauge = meter.create_observable_gauge(
+    meter.create_observable_gauge(
         "gauge", [observable_gauge_func], "dimension", " a simple gauge"
     )
     attributes = {"用户信息": "用户数日活"}
