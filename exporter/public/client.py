@@ -109,7 +109,7 @@ class HTTPClient(Client):
             case Compression.GzipCompression:
                 gzip_data = BytesIO()
                 with gzip.GzipFile(fileobj=gzip_data, mode="w") as gzip_stream:
-                    gzip_stream.write(data)
+                    gzip_stream.write(bytes(data, "utf8"))
                 self._exporting_data = gzip_data.getvalue()
                 self._http_config.headers["Content-Encoding"] = "gzip"
 
