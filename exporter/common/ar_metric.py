@@ -221,13 +221,11 @@ def anyrobot_histogram_data_point_from_histogram_data_point(
 
 
 def anyrobot_temporality_from_temporality(temporality: AggregationTemporality) -> str:
-    match temporality:
-        case 1:
-            return "DeltaTemporality"
-        case 2:
-            return "CumulativeTemporality"
-        case _:
-            return "undefinedTemporality"
+    if temporality == 1:
+        return "DeltaTemporality"
+    if temporality == 2:
+        return "DeltaTemporality"
+    return "undefinedTemporality"
 
 
 def anyrobot_rfc3339_nano_from_unix_nano(unix_nano: int) -> str:

@@ -33,18 +33,17 @@ def standardize_value_type(data: LabelValue) -> str:
     """
     standardize_value_type 标准化统一 value_type 为各语言统一格式。
     """
-    match str(type(data)):
-        case "<class 'bool'>":
-            return "BOOL"
-        case "<class 'int'>":
-            return "INT"
-        case "<class 'float'>":
-            return "FLOAT"
-        case "<class 'str'>":
-            return "STRING"
-        case "<class 'tuple'>":
-            if len(data) == 0:
-                return "STRINGARRAY"
-            return standardize_value_type(data[0]) + "ARRAY"
-        case _:
-            return str(type(data))
+    if str(type(data)) == "<class 'bool'>":
+        return "BOOL"
+    if str(type(data)) == "<class 'int'>":
+        return "INT"
+    if str(type(data)) == "<class 'float'>":
+        return "FLOAT"
+    if str(type(data)) == "<class 'str'>":
+        return "STRING"
+    if str(type(data)) == "<class 'tuple'>":
+        if len(data) == 0:
+            return "STRINGARRAY"
+        return standardize_value_type(data[0]) + "ARRAY"
+
+    return str(type(data))

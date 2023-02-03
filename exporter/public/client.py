@@ -101,16 +101,15 @@ class HTTPClient(Client):
         """
         # 设置压缩方式和数据来源
         self._http_config.headers["Service-Language"] = "Python"
-        match self._http_config.compression:
-            case Compression.NoCompression:
-                self._exporting_data = data.encode(encoding="utf8")
-                self._http_config.headers["Content-Encoding"] = "json"
-            case Compression.GzipCompression:
-                gzip_data = BytesIO()
-                with gzip.GzipFile(fileobj=gzip_data, mode="w") as gzip_stream:
-                    gzip_stream.write(bytes(data, "utf8"))
-                self._exporting_data = gzip_data.getvalue()
-                self._http_config.headers["Content-Encoding"] = "gzip"
+        if self._http_config.compression == Compression.NoCompression:
+            self._exporting_data = data.encode(encoding="utf8")
+            self._http_config.headers["Content-Encoding"] = "json"
+        if self._http_config.compression == Compression.GzipCompression:
+            gzip_data = BytesIO()
+            with gzip.GzipFile(fileobj=gzip_data, mode="w") as gzip_stream:
+                gzip_stream.write(bytes(data, "utf8"))
+            self._exporting_data = gzip_data.getvalue()
+            self._http_config.headers["Content-Encoding"] = "gzip"
 
         for delay in self._retry(self._http_config.max_elapsed_time):
             if delay == self._http_config.max_elapsed_time:
@@ -122,27 +121,25 @@ class HTTPClient(Client):
                 verify=None,
                 timeout=self._http_config.timeout,
             )
-            match resp.status_code:
-                case 200, 204:
-                    return False
-                case 400:
-                    _logger.info(InvalidFormat)
-                    return True
-                case 404:
-                    _logger.info(JobIdNotFound)
-                    return True
-                case 413:
-                    _logger.info(PayloadTooLarge)
-                    return True
-                case 429, 500, 503:
-                    self._http_config.headers["Retry-After"] = "true"
-                    sleep(delay)
-                    continue
-                case _:
-                    _logger.info(
-                        "Failed to export , status code: %s, reason: %s",
-                        resp.status_code,
-                        resp.text,
-                    )
-                    return True
+            if resp.status_code == 200 or 204:
+                return False
+            if resp.status_code == 400:
+                _logger.info(InvalidFormat)
+                return True
+            if resp.status_code == 404:
+                _logger.info(JobIdNotFound)
+                return True
+            if resp.status_code == 413:
+                _logger.info(PayloadTooLarge)
+                return True
+            if resp.status_code == 429 or 500 or 503:
+                self._http_config.headers["Retry-After"] = "true"
+                sleep(delay)
+                continue
+            _logger.info(
+                "Failed to export , status code: %s, reason: %s",
+                resp.status_code,
+                resp.text,
+            )
+            return True
         return False
