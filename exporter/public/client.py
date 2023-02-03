@@ -62,10 +62,9 @@ class StdoutClient(Client):
     def upload_data(self, data: str) -> bool:
         stdout.write(data)
         stdout.flush()
-        with open(self._path, "a") as file:
+        with open(self._path, "w") as file:
             file.write(data)
             file.flush()
-        file.close()
         return False
 
 

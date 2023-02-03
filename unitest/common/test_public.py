@@ -1,11 +1,16 @@
 import unittest
 
 from exporter.config.config import Config, Compression
-from exporter.public.public import WithAnyRobotURL, WithCompression, WithTimeout, WithHeader, WithRetry
+from exporter.public.public import (
+    WithAnyRobotURL,
+    WithCompression,
+    WithTimeout,
+    WithHeader,
+    WithRetry,
+)
 
 
 class TestPublic(unittest.TestCase):
-
     def test_with_any_robot_url(self):
         cfg = Config()
         url = "a.b.c.d"

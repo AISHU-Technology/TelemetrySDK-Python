@@ -14,20 +14,10 @@ from exporter.public.public import WithAnyRobotURL, WithCompression
 from exporter.resource.resource import metric_resource
 
 reader = PeriodicExportingMetricReader(
-    ARMetricExporter(
-        # HTTPClient(
-        #     WithAnyRobotURL(
-        #         # "http://127.0.0.1:8800/api/feed_ingester/v1/jobs/job-abcd4f634e80d530/events"
-        #         "http://10.4.130.68:13048/api/feed_ingester/v1/jobs/Kitty1/events"
-        #     ),
-        #     WithCompression(Compression.GzipCompression),
-        # )
-        StdoutClient("./AnyRobotMetric.txt")
-    )
+    ARMetricExporter(StdoutClient("./AnyRobotMetric.txt"))
 )
 provider = MeterProvider(resource=metric_resource(), metric_readers=[reader])
 metrics.set_meter_provider(provider)
-provider.force_flush()
 
 
 def observable_gauge_func(options: CallbackOptions) -> Iterable[Observation]:

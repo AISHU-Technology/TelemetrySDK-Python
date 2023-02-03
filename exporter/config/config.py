@@ -9,45 +9,17 @@ class Compression(IntEnum):
 
 
 class Config:
-    def __init__(self, current: int = 0):
-        self.current = current
+    def __init__(self):
         self.endpoint: str = "localhost:5678"
         self.compression: Compression = Compression.GzipCompression
         self.timeout: float = 10
         self.headers: dict[str, str] = {}
         self.max_elapsed_time: float = 60
 
-    def __iter__(self) -> Iterable:
-        return self
-
-    def __next__(self):
-        if self.current > 4 or self.current < 0:
-            raise StopIteration
-        self.current += 1
-        return self.__getitem__(self.current)
-
-    def __getitem__(self, item: int):
-        match item:
-            case 1:
-                return self.endpoint
-            case 2:
-                return self.compression
-            case 3:
-                return self.timeout
-            case 4:
-                return self.headers
-            case 5:
-                return self.max_elapsed_time
-
     def __eq__(self, other) -> bool:
         if not isinstance(other, Config):
             return False
-        for attr in self:
-            if attr != other.__getitem__(self.current):
-                self.current = 0
-                return False
-        self.current = 0
-        return True
+        return self.__dict__ == other.__dict__
 
 
 class Option(ABC):
