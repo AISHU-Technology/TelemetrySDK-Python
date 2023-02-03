@@ -1,8 +1,13 @@
-from typing import Iterable
+from typing import Iterable, Sequence
 
 from opentelemetry import metrics
 from opentelemetry.metrics import Observation, CallbackOptions
 from opentelemetry.sdk.metrics import MeterProvider
+from opentelemetry.sdk.metrics._internal.aggregation import (
+    ExplicitBucketHistogramAggregation,
+)
+from opentelemetry.sdk.metrics._internal.instrument import Histogram
+from opentelemetry.sdk.metrics.view import View
 from opentelemetry.sdk.metrics.export import (
     PeriodicExportingMetricReader,
 )
@@ -16,6 +21,17 @@ from exporter.resource.resource import metric_resource
 reader = PeriodicExportingMetricReader(
     ARMetricExporter(StdoutClient("./AnyRobotMetric.txt"))
 )
+
+"""
+如果需要自定义histogram边界值，修改传入的参数view。
+"""
+# boundary = [1, 2, 3]
+# aggregation = ExplicitBucketHistogramAggregation(boundary)
+# view = [View(instrument_type=Histogram, aggregation=aggregation)]
+#
+# provider = MeterProvider(
+#     resource=metric_resource(), metric_readers=[reader], views=view
+# )
 provider = MeterProvider(resource=metric_resource(), metric_readers=[reader])
 metrics.set_meter_provider(provider)
 
