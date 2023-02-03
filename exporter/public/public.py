@@ -2,7 +2,12 @@ import re
 import logging
 
 from exporter.config.config import Option, Config, Compression
-from exporter.custom_errors.error_code import InvalidURL, InvalidCompression, DurationTooLong, RetryTooLong
+from exporter.custom_errors.error_code import (
+    InvalidURL,
+    InvalidCompression,
+    DurationTooLong,
+    RetryTooLong,
+)
 
 _logger = logging.getLogger(__name__)
 
@@ -68,7 +73,7 @@ class WithHeader(Option):
     设置自定义请求头。
     """
 
-    def __init__(self, headers: dict[str, str]):
+    def __init__(self, headers: "dict[str, str]"):
         self._headers = headers
 
     def apply(self, cfg: Config) -> Config:

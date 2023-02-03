@@ -13,7 +13,7 @@ class Config:
         self.endpoint: str = "localhost:5678"
         self.compression: Compression = Compression.GzipCompression
         self.timeout: float = 10
-        self.headers: dict[str, str] = {}
+        self.headers: "dict[str, str]" = {}
         self.max_elapsed_time: float = 60
 
     def __eq__(self, other) -> bool:
