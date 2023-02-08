@@ -7,6 +7,8 @@ import requests
 import gzip
 import logging
 
+import urllib3
+
 from exporter.config.config import Option, Config
 from exporter.custom_errors.error_code import *
 from exporter.public.public import Compression
@@ -14,6 +16,7 @@ import backoff
 
 _is_backoff_v2 = next(backoff.expo()) is None
 _logger = logging.getLogger(__name__)
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
 class Client(ABC):
@@ -118,7 +121,7 @@ class HTTPClient(Client):
                 url=self._http_config.endpoint,
                 data=self._exporting_data,
                 headers=self._http_config.headers,
-                verify=None,
+                verify=False,
                 timeout=self._http_config.timeout,
             )
             if resp.status_code == 200 or 204:
