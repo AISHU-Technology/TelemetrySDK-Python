@@ -10,12 +10,15 @@ import logging
 import urllib3
 
 from exporter.config.config import Option, Config
-from exporter.custom_errors.error_code import *
+from exporter.custom_errors.error_code import (
+    InvalidFormat,
+    JobIdNotFound,
+    PayloadTooLarge,
+)
 from exporter.public.public import Compression
 import backoff
 
 _is_backoff_v2 = next(backoff.expo()) is None
-_logger = logging.getLogger(__name__)
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
@@ -124,22 +127,26 @@ class HTTPClient(Client):
                 verify=False,
                 timeout=self._http_config.timeout,
             )
-            if resp.status_code == 200 or 204:
+            if resp.status_code == 200 or resp.status_code == 204:
                 return False
             if resp.status_code == 400:
-                _logger.info(InvalidFormat)
+                logging.warning(InvalidFormat)
                 return True
             if resp.status_code == 404:
-                _logger.info(JobIdNotFound)
+                logging.warning(JobIdNotFound)
                 return True
             if resp.status_code == 413:
-                _logger.info(PayloadTooLarge)
+                logging.warning(PayloadTooLarge)
                 return True
-            if resp.status_code == 429 or 500 or 503:
+            if (
+                resp.status_code == 429
+                or resp.status_code == 500
+                or resp.status_code == 503
+            ):
                 self._http_config.headers["Retry-After"] = "true"
                 sleep(delay)
                 continue
-            _logger.info(
+            logging.warning(
                 "Failed to export , status code: %s, reason: %s",
                 resp.status_code,
                 resp.text,

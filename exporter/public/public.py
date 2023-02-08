@@ -9,8 +9,6 @@ from exporter.custom_errors.error_code import (
     RetryTooLong,
 )
 
-_logger = logging.getLogger(__name__)
-
 
 class WithAnyRobotURL(Option):
     """
@@ -20,7 +18,7 @@ class WithAnyRobotURL(Option):
 
     def __init__(self, url: str):
         if not re.match(r"^https?:/{2}\w.+$", url):
-            _logger.info(InvalidURL)
+            logging.warning(InvalidURL)
             self._url = None
         else:
             self._url = url
@@ -39,7 +37,7 @@ class WithCompression(Option):
 
     def __init__(self, compression: Compression):
         if compression < 0 or compression > 1:
-            _logger.info(InvalidCompression)
+            logging.warning(InvalidCompression)
             self._compression = None
         else:
             self._compression = compression
@@ -57,7 +55,7 @@ class WithTimeout(Option):
 
     def __init__(self, timeout: int):
         if timeout <= 0 or timeout > 120:
-            _logger.info(DurationTooLong)
+            logging.warning(DurationTooLong)
             self._timeout = None
         else:
             self._timeout = timeout
@@ -88,7 +86,7 @@ class WithRetry(Option):
 
     def __init__(self, max_elapsed_time: float):
         if max_elapsed_time <= 0 or max_elapsed_time > 600:
-            _logger.info(RetryTooLong)
+            logging.warning(RetryTooLong)
             self._max_elapsed_time = None
         else:
             self._max_elapsed_time = max_elapsed_time
