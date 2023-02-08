@@ -164,6 +164,17 @@ def anyrobot_data_point_from_data_point(data_point: NumberDataPoint) -> str:
 
 
 def int_data_point(data_point: NumberDataPoint) -> str:
+    if check_zero_time(data_point.time_unix_nano):
+        return json.dumps(
+            obj={
+                "Attributes": json.loads(
+                    anyrobot_attributes_from_key_values(data_point.attributes)
+                ),
+                "Time": anyrobot_rfc3339_nano_from_unix_nano(data_point.time_unix_nano),
+                "Float": data_point.value,
+            },
+            ensure_ascii=False,
+        )
     return json.dumps(
         obj={
             "Attributes": json.loads(
@@ -180,6 +191,17 @@ def int_data_point(data_point: NumberDataPoint) -> str:
 
 
 def float_data_point(data_point: NumberDataPoint) -> str:
+    if check_zero_time(data_point.time_unix_nano):
+        return json.dumps(
+            obj={
+                "Attributes": json.loads(
+                    anyrobot_attributes_from_key_values(data_point.attributes)
+                ),
+                "Time": anyrobot_rfc3339_nano_from_unix_nano(data_point.time_unix_nano),
+                "Float": data_point.value,
+            },
+            ensure_ascii=False,
+        )
     return json.dumps(
         obj={
             "Attributes": json.loads(
@@ -240,3 +262,13 @@ def anyrobot_rfc3339_nano_from_unix_nano(unix_nano: int) -> str:
     ).isoformat("T")
     result = str(rfc3339_nano)
     return result
+
+
+def check_zero_time(time: int) -> bool:
+    """
+    判断时间是否为零值。
+    """
+    time = str(time)
+    if time[:6] == "167584":
+        return True
+    return False
