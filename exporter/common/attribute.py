@@ -7,16 +7,18 @@ from opentelemetry.util.types import Attributes as Another
 
 def anyrobot_resource_from_resource(data: Resource) -> str:
     return json.dumps(
-        obj=json.loads(anyrobot_attributes_from_key_values(data.attributes))
+        obj=json.loads(anyrobot_attributes_from_key_values(data.attributes)),
+        ensure_ascii=False,
     )
 
 
 def anyrobot_attributes_from_key_values(data: Union[Attributes, Another]) -> str:
     return json.dumps(
-        [
+        obj=[
             json.loads(anyrobot_attribute_from_key_value(key, data.get(key)))
             for key in data.keys()
-        ]
+        ],
+        ensure_ascii=False,
     )
 
 
@@ -25,7 +27,8 @@ def anyrobot_attribute_from_key_value(key: str, value: LabelValue) -> str:
         obj={
             "Key": key,
             "Value": {"Type": standardize_value_type(value), "Value": value},
-        }
+        },
+        ensure_ascii=False,
     )
 
 
