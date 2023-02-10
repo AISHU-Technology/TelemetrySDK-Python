@@ -18,8 +18,15 @@ from exporter.ar_metric.metric_exporter import ARMetricExporter, meter
 from exporter.public.public import WithAnyRobotURL, WithCompression
 from exporter.resource.resource import metric_resource
 
+"""
+写本地文件或者上报AR。
+"""
 reader = PeriodicExportingMetricReader(
     ARMetricExporter(StdoutClient("./AnyRobotMetric.txt"))
+    # ARMetricExporter(HTTPClient(
+    #     WithAnyRobotURL("http://a.b.c.d/"),
+    #     WithCompression(Compression.GzipCompression),
+    # ))
 )
 
 """
@@ -39,6 +46,11 @@ metrics.set_meter_provider(provider)
 def observable_gauge_func(options: CallbackOptions) -> Iterable[Observation]:
     attribute = {"用户信息": "在线用户数"}
     yield Observation(9, attribute)
+
+
+def observable_sum_func(options: CallbackOptions) -> Iterable[Observation]:
+    attribute = {"用户信息": "用户数日活"}
+    yield Observation(72, attribute)
 
 
 def add(x: int, y: int) -> int:
@@ -71,3 +83,7 @@ if __name__ == "__main__":
     counter = meter.create_counter("sum", "dimension", "a simple counter")
     counter.add(num, attributes)
     counter.add(num, attributes)
+
+    # counter = meter.create_observable_counter(
+    #     "sum", [observable_sum_func], "dimension", "a simple counter"
+    # )
