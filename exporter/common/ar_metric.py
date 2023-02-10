@@ -164,7 +164,7 @@ def anyrobot_data_point_from_data_point(data_point: NumberDataPoint) -> str:
 
 
 def int_data_point(data_point: NumberDataPoint) -> str:
-    if check_zero_time(data_point.time_unix_nano):
+    if check_zero_time(data_point.start_time_unix_nano):
         return json.dumps(
             obj={
                 "Attributes": json.loads(
@@ -191,7 +191,7 @@ def int_data_point(data_point: NumberDataPoint) -> str:
 
 
 def float_data_point(data_point: NumberDataPoint) -> str:
-    if check_zero_time(data_point.time_unix_nano):
+    if check_zero_time(data_point.start_time_unix_nano):
         return json.dumps(
             obj={
                 "Attributes": json.loads(
@@ -268,7 +268,6 @@ def check_zero_time(time: int) -> bool:
     """
     判断时间是否为零值。
     """
-    time = str(time)
-    if time[:6] == "167584":
+    if time == 0:
         return True
     return False
