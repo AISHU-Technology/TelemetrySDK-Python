@@ -12,7 +12,6 @@ from opentelemetry import trace as trace_api
 from .texception import TException
 from .field import Attributes, Resources, Body
 
-
 _VERSION = "v1.6.1"
 
 
@@ -22,6 +21,7 @@ def check_flag(func):
         if not self._Flag:
             raise TException("object has been signal")
         return func(self, *args, **kwargs)
+
     return wrapper
 
 
@@ -85,7 +85,7 @@ class _Span(object):
             my_property["Attributes"] = self._attributes.all_property
         else:
             my_property["Attributes"] = dict()
-        return json.dumps(my_property, indent=indent)
+        return json.dumps(my_property, indent=indent, ensure_ascii=False)
 
 
 class LogSpan(_Span):
