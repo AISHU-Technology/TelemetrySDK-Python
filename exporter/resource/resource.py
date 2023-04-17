@@ -3,9 +3,9 @@ import platform
 import socket
 
 from opentelemetry.sdk.resources import Resource, Attributes
-
 from exporter.version.version import MetricInstrumentationName, MetricInstrumentationVersion, MetricInstrumentationURL
 from opentelemetry.semconv.resource import ResourceAttributes
+from tlogging.field import Resources
 
 
 def default_service_name() -> str:
@@ -42,3 +42,10 @@ def metric_resource() -> Resource:
     attributes[ResourceAttributes.TELEMETRY_SDK_NAME] = MetricInstrumentationName
     attributes[ResourceAttributes.TELEMETRY_SDK_VERSION] = MetricInstrumentationVersion
     return Resource.create(attributes=attributes, schema_url=MetricInstrumentationURL)
+
+
+def log_resource() -> Resources:
+    attributes = inner_attributes()
+    attributes[ResourceAttributes.TELEMETRY_SDK_NAME] = MetricInstrumentationName
+    attributes[ResourceAttributes.TELEMETRY_SDK_VERSION] = MetricInstrumentationVersion
+    return Resources.create(attributes=attributes)

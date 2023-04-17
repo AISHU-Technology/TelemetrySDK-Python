@@ -6,13 +6,12 @@ import random
 from contextlib import contextmanager
 from collections import OrderedDict
 import json
-
+from os import linesep
 from opentelemetry import trace as trace_api
-
+from exporter.common.ar_metric import anyrobot_rfc3339_nano_from_unix_nano
+from .processor import Processor
 from .texception import TException
 from .field import Attributes, Resources, Body
-
-_VERSION = "v1.6.1"
 
 
 def check_flag(func):
@@ -27,105 +26,94 @@ def check_flag(func):
 
 class _Span(object):
 
-    def __init__(self, version, trace_id, span_id, severity_text, timestamp, resources, attributes, body):
-        self._version = version
-        self._trace_id = trace_id
-        self._span_id = span_id
-        self._severity_text = severity_text
+    def __init__(self, trace_id, span_id, severity_text, timestamp, resources: Resources,
+                 attributes: Attributes, body: Body):
+        self._link = {"TraceId": trace_id, "SpanId": span_id}
         self._timestamp = timestamp
-        self._resources = resources
-        self._attributes = attributes
+        self._severity_text = severity_text
         self._body = body
+        self._attributes = attributes
+        self._resources = resources
 
     @property
-    def version(self):
-        return self._version
-
-    @property
-    def trace_id(self):
-        return self._trace_id
-
-    @property
-    def span_id(self):
-        return self._span_id
-
-    @property
-    def severity_text(self):
-        return self._severity_text
+    def link(self):
+        return self._link
 
     @property
     def timestamp(self):
         return self._timestamp
 
     @property
-    def resources(self):
-        return self._resources.all_property
+    def severity_text(self):
+        return self._severity_text
+
+    @property
+    def body(self):
+        return self._body.all_property
 
     @property
     def attributes(self):
         return self._attributes.all_property
 
     @property
-    def body(self):
-        return self._body.all_property
+    def resources(self):
+        return self._resources.all_property
 
     def to_json(self, indent=4):
         my_property = OrderedDict()
-        my_property["Version"] = self._version
-        my_property["TraceId"] = _format_traceid(self._trace_id)
-        my_property["SpanId"] = _format_spanid(self._span_id)
-        my_property["SeverityText"] = self._severity_text
+        my_property["Link"] = self._link
         my_property["Timestamp"] = self._timestamp
+        my_property["SeverityText"] = self._severity_text
         if self._body:
             my_property["Body"] = self._body.all_property
         else:
             my_property["Body"] = dict()
-        my_property["Resource"] = self._resources.all_property
         if self._attributes:
             my_property["Attributes"] = self._attributes.all_property
         else:
             my_property["Attributes"] = dict()
-        return json.dumps(my_property, indent=indent, ensure_ascii=False)
+        if self._resources:
+            my_property["Resource"] = self._resources.all_property
+        else:
+            my_property["Resource"] = Resources(None).all_property
+        return json.dumps(my_property, indent=indent, ensure_ascii=False) + linesep
 
 
 class LogSpan(_Span):
 
-    def __init__(self, processor, body, severity_text, ctx=None, attributes=None):
-        self.__version = _VERSION
-
-        self.__timestamp = self._get_time()
-        self.__resources = Resources()
-        if attributes and not isinstance(attributes, Attributes):
-            raise TException("Incoming parameter type is wrong: attributes")
-        self.__attributes = attributes
-        if not isinstance(body, Body):
-            raise TException("Incoming parameter type is wrong: body")
-        self.__body = body
-        self.__severity_text = severity_text
+    def __init__(self, processor, body: Body, severity_text, ctx=None, attributes: Attributes = None,
+                 resources: Resources = None):
         self.__processor = processor
         ctx = trace_api.get_current_span(ctx).get_span_context()
         if not ctx.trace_id:
-            self.__trace_id = self._gen_trace_id()
-            self.__span_id = self._gen_span_id()
+            self.__trace_id = "00000000000000000000000000000000"
+            self.__span_id = "0000000000000000"
         else:
             self.__trace_id = ctx.trace_id
             self.__span_id = ctx.span_id
-        super(LogSpan, self).__init__(self.__version,
-                                      self.__trace_id,
-                                      self.__span_id,
-                                      severity_text,
-                                      self.__timestamp,
-                                      self.__resources,
-                                      attributes,
-                                      body)
+        self.__timestamp = self._get_time()
+        self.__severity_text = severity_text
+        if not isinstance(body, Body):
+            raise TException("Incoming parameter type is wrong: body")
+        self.__body = body
+        if attributes and not isinstance(attributes, Attributes):
+            raise TException("Incoming parameter type is wrong: attributes")
+        self.__attributes = attributes
+        if resources and not isinstance(resources, Resources):
+            raise TException("Incoming parameter type is wrong: resources")
+        self.__resources = resources
 
-    # def __del__(self):
-    #     if self._Flag:
-    #         self.end()
+        super(LogSpan, self).__init__(
+            self.__trace_id,
+            self.__span_id,
+            severity_text,
+            self.__timestamp,
+            self.__resources,
+            attributes,
+            body)
 
     def _readable_span(self):
-        return _Span(version=self.__version,
-                     trace_id=self.__trace_id,
+        return _Span(trace_id=self.__trace_id,
                      span_id=self.__span_id,
                      severity_text=self.__severity_text,
                      timestamp=self.__timestamp,
@@ -140,7 +128,8 @@ class LogSpan(_Span):
         self.__attributes = attributes
 
     def _get_time(self):
-        return int(time.time() * 1e9)
+        return anyrobot_rfc3339_nano_from_unix_nano(time.time_ns())
+        # return int(time.time() * 1e9)
 
     def _gen_span_id(self):
         return random.getrandbits(64)
@@ -154,8 +143,9 @@ class LogSpan(_Span):
 
 class Logger(object):
 
-    def __init__(self, processor):
+    def __init__(self, processor: Processor, resource: Resources):
         self._processor = processor
+        self._resources = resource
 
     @contextmanager
     def start_span(self, body, severity_text, attributes=None, ctx=None):
@@ -165,13 +155,24 @@ class Logger(object):
                            body=body,
                            severity_text=severity_text,
                            ctx=ctx,
-                           attributes=attributes)
+                           attributes=attributes,
+                           resources=self._resources)
             yield span
         except Exception as ex:
             raise TException(ex)
         finally:
             if span:
                 span.end()
+
+    # self, processor, body, severity_text, ctx=None, attributes=None
+    def sync_log(self, body, severity_text, attributes=None, ctx=None) -> list[_Span]:
+        span = LogSpan(processor=self._processor,
+                       body=body,
+                       severity_text=severity_text,
+                       ctx=ctx,
+                       attributes=attributes,
+                       resources=self._resources)
+        return [span]
 
 
 def _format_traceid(trace_id):

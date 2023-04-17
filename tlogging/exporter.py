@@ -2,8 +2,6 @@
 # -*- coding: utf-8 -*-
 import sys
 from abc import abstractmethod, ABC
-from os import linesep
-from exporter.public.client import Client
 
 
 class LogExporter(ABC):
@@ -11,9 +9,9 @@ class LogExporter(ABC):
         pass
 
     @abstractmethod
-    def force_flush(self, timeout_millis: float = 10_000) -> bool:
+    def name(self) -> str:
         """
-        强制发送缓存。
+        Exporter唯一标识。
         """
         pass
 
@@ -25,7 +23,7 @@ class LogExporter(ABC):
         pass
 
     @abstractmethod
-    def export_logs(self, logs: list[None]) -> bool:
+    def export_logs(self, logs: list["_Span"]) -> bool:
         """
         export_logs,用来上报logs,返回上报结果。
         """
@@ -43,16 +41,16 @@ class ConsoleExporter(LogExporter):
         if prettyprint:
             self.formatter = lambda span: span.to_json()
 
-    def export(self, spans: list[None]):
+    def export(self, spans: list["_Span"]):
         for span in spans:
-            self.out.write(self.formatter(span) + linesep)
+            self.out.write(self.formatter(span))
         self.out.flush()
 
-    def force_flush(self, timeout_millis: float = 10_000) -> bool:
+    def name(self) -> str:
         """
         没有缓存，所以不操作。
         """
-        return False
+        return "ConsoleExporter"
 
     def shutdown(self, timeout_millis: float = 30_000, **kwargs) -> None:
         """
@@ -60,7 +58,7 @@ class ConsoleExporter(LogExporter):
         """
         pass
 
-    def export_logs(self, logs: list[None]) -> bool:
+    def export_logs(self, logs: list["_Span"]) -> bool:
         """
         写本地默认成功。
         """

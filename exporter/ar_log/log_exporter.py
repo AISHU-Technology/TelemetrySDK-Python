@@ -13,11 +13,11 @@ class ARLogExporter(LogExporter):
         self._exporter: Exporter = Exporter(client)
         LogExporter.__init__(self)
 
-    def force_flush(self, timeout_millis: float = 10_000) -> bool:
+    def name(self) -> str:
         """
-        没有缓存，所以不操作。
+        返回client地址。
         """
-        return False
+        return self._exporter.client.path()
 
     def shutdown(self, timeout_millis: float = 30_000, **kwargs) -> None:
         """
@@ -25,7 +25,7 @@ class ARLogExporter(LogExporter):
         """
         self._exporter.client.stop()
 
-    def export_logs(self, logs: list[None]) -> bool:
+    def export_logs(self, logs: list["_Span"]) -> bool:
         """
         先转换数据和golang统一。
         """
