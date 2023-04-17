@@ -36,7 +36,7 @@ class ARMetricExporter(MetricExporter):
         """
         没有缓存，所以不操作。
         """
-        return True
+        return False
 
     def shutdown(self, timeout_millis: float = 30_000, **kwargs) -> None:
         """

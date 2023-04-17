@@ -105,6 +105,9 @@ class HTTPClient(Client):
         """
         实际发送可观测性数据的函数。
         """
+        # 判断发送模式是否为同步
+        if self._http_config.is_sync:
+            self._http_config.headers["sync-mode"] = "sync"
         # 设置压缩方式和数据来源
         self._http_config.headers["Service-Language"] = "Python"
         if self._http_config.compression == Compression.NoCompression:
@@ -139,9 +142,9 @@ class HTTPClient(Client):
                 logging.warning(PayloadTooLarge)
                 return True
             if (
-                resp.status_code == 429
-                or resp.status_code == 500
-                or resp.status_code == 503
+                    resp.status_code == 429
+                    or resp.status_code == 500
+                    or resp.status_code == 503
             ):
                 self._http_config.headers["Retry-After"] = "true"
                 sleep(delay)
