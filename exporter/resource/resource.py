@@ -48,10 +48,10 @@ def metric_resource() -> Resource:
 def log_resource() -> Resources:
     info = platform.uname()
     host = {"ip": socket.gethostbyname(socket.gethostname()), "name": info.node, "arch": info.machine}
-    os = {"type": info.system, "version": info.version, "description": info.system + info.release}
+    operating_system = {"type": info.system, "version": info.version, "description": info.system + info.release}
     sdk = {"name": LogInstrumentationName, "version": TelemetrySDKVersion, "language": "python"}
     telemetry = {"sdk": sdk}
     instance = {"id": global_service_instance_id}
     service = {"name": global_service_name, "version": global_service_version, "instance": instance}
-    resource_attributes = {"host": host, "os": os, "telemetry": telemetry, "service": service}
+    resource_attributes = {"host": host, "os": operating_system, "telemetry": telemetry, "service": service}
     return Resources(resource_attributes)
