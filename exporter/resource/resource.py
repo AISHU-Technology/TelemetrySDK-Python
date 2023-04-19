@@ -3,7 +3,8 @@ import platform
 import socket
 
 from opentelemetry.sdk.resources import Resource, Attributes
-from exporter.version.version import MetricInstrumentationName, MetricInstrumentationVersion, MetricInstrumentationURL
+from exporter.version.version import MetricInstrumentationName, MetricInstrumentationURL, LogInstrumentationName, \
+    TelemetrySDKVersion
 from opentelemetry.semconv.resource import ResourceAttributes
 from tlogging.field import Resources
 
@@ -15,9 +16,9 @@ def default_service_name() -> str:
     return service_name
 
 
-globalServiceName = default_service_name()
-globalServiceVersion = "UnknownServiceVersion"
-globalServiceInstance = "UnknownServiceInstance"
+global_service_name = default_service_name()
+global_service_version = "UnknownServiceVersion"
+global_service_instance_id = "UnknownServiceInstanceID"
 
 
 def inner_attributes() -> Attributes:
@@ -29,9 +30,9 @@ def inner_attributes() -> Attributes:
         ResourceAttributes.OS_TYPE: info.system,
         ResourceAttributes.OS_VERSION: info.version,
         ResourceAttributes.OS_DESCRIPTION: info.system + info.release,
-        ResourceAttributes.SERVICE_NAME: globalServiceName,
-        ResourceAttributes.SERVICE_VERSION: globalServiceVersion,
-        ResourceAttributes.SERVICE_INSTANCE_ID: globalServiceInstance,
+        ResourceAttributes.SERVICE_NAME: global_service_name,
+        ResourceAttributes.SERVICE_VERSION: global_service_version,
+        ResourceAttributes.SERVICE_INSTANCE_ID: global_service_instance_id,
         ResourceAttributes.TELEMETRY_SDK_LANGUAGE: "python",
     }
     return inner
@@ -40,12 +41,17 @@ def inner_attributes() -> Attributes:
 def metric_resource() -> Resource:
     attributes = inner_attributes()
     attributes[ResourceAttributes.TELEMETRY_SDK_NAME] = MetricInstrumentationName
-    attributes[ResourceAttributes.TELEMETRY_SDK_VERSION] = MetricInstrumentationVersion
+    attributes[ResourceAttributes.TELEMETRY_SDK_VERSION] = TelemetrySDKVersion
     return Resource.create(attributes=attributes, schema_url=MetricInstrumentationURL)
 
 
 def log_resource() -> Resources:
-    attributes = inner_attributes()
-    attributes[ResourceAttributes.TELEMETRY_SDK_NAME] = MetricInstrumentationName
-    attributes[ResourceAttributes.TELEMETRY_SDK_VERSION] = MetricInstrumentationVersion
-    return Resources.create(attributes=attributes)
+    info = platform.uname()
+    host = {"ip": socket.gethostbyname(socket.gethostname()), "name": info.node, "arch": info.machine}
+    os = {"type": info.system, "version": info.version, "description": info.system + info.release}
+    sdk = {"name": LogInstrumentationName, "version": TelemetrySDKVersion, "language": "python"}
+    telemetry = {"sdk": sdk}
+    instance = {"id": global_service_instance_id}
+    service = {"name": global_service_name, "version": global_service_version, "instance": instance}
+    resource_attributes = {"host": host, "os": os, "telemetry": telemetry, "service": service}
+    return Resources(resource_attributes)

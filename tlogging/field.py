@@ -1,27 +1,23 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import collections
 import typing
 from opentelemetry.sdk.resources import Attributes
+
 from .texception import TException
 
 
 class Resources(object):
 
-    def __init__(self, attributes: typing.Optional[Attributes]):
+    def __init__(self, attributes: dict):
         if attributes is None:
-            self.__attributes = {"1": 1}
+            self.__attributes = dict()
         else:
             self.__attributes = attributes
 
-    @staticmethod
-    def create(
-            attributes: typing.Optional[Attributes] = None,
-    ) -> "Resources":
-        return Resources(attributes)
-
     @property
     def all_property(self):
-        return dict(self.__attributes)
+        return self.__attributes
 
 
 class Body(object):

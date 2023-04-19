@@ -22,7 +22,7 @@ class SamplerLogger(object):
     # _instance_lock = threading.Lock()
     loglevel = "InfoLevel"
 
-    def __init__(self, resource: Resources, exporter: LogExporter = None):
+    def __init__(self, resource: Resources, exporter: LogExporter):
         if not exporter:
             exporter = ConsoleExporter()
         self._span_processor = Processor(exporter)
@@ -109,9 +109,9 @@ class SyncLogger(object):
         self.logger = Logger(self._span_processor, resource)
         self._atexit_handler = atexit.register(self.shutdown)
 
-    def __new__(cls, *args, **kwargs):
-        SamplerLogger._instance = object.__new__(cls)
-        return SamplerLogger._instance
+    # def __new__(cls, *args, **kwargs):
+    #     SamplerLogger._instance = object.__new__(cls)
+    #     return SamplerLogger._instance
 
     def trace(self, message, attributes=None, etype=None, ctx=None) -> bool:
         if _LOGLEVEL["TraceLevel"] < self._get_level():
@@ -121,7 +121,7 @@ class SyncLogger(object):
         log = self.logger.sync_log(Body(message, etype), "Trace", attributes, ctx)
         return self._span_processor.span_exporter.export_logs(log)
 
-    def debug(self, message, attributes=None, etype=None, ctx=None):
+    def debug(self, message, attributes=None, etype=None, ctx=None) -> bool:
         if _LOGLEVEL["DebugLevel"] < self._get_level():
             return False
         if attributes and not isinstance(attributes, Attributes):
@@ -129,7 +129,7 @@ class SyncLogger(object):
         log = self.logger.sync_log(Body(message, etype), "Debug", attributes, ctx)
         return self._span_processor.span_exporter.export_logs(log)
 
-    def info(self, message, attributes=None, etype=None, ctx=None):
+    def info(self, message, attributes=None, etype=None, ctx=None) -> bool:
         if _LOGLEVEL["InfoLevel"] < self._get_level():
             return False
         if attributes and not isinstance(attributes, Attributes):
@@ -137,7 +137,7 @@ class SyncLogger(object):
         log = self.logger.sync_log(Body(message, etype), "Info", attributes, ctx)
         return self._span_processor.span_exporter.export_logs(log)
 
-    def warn(self, message, attributes=None, etype=None, ctx=None):
+    def warn(self, message, attributes=None, etype=None, ctx=None) -> bool:
         if _LOGLEVEL["WarnLevel"] < self._get_level():
             return False
         if attributes and not isinstance(attributes, Attributes):
@@ -145,7 +145,7 @@ class SyncLogger(object):
         log = self.logger.sync_log(Body(message, etype), "Warn", attributes, ctx)
         return self._span_processor.span_exporter.export_logs(log)
 
-    def error(self, message, attributes=None, etype=None, ctx=None):
+    def error(self, message, attributes=None, etype=None, ctx=None) -> bool:
         if _LOGLEVEL["ErrorLevel"] < self._get_level():
             return False
         if attributes and not isinstance(attributes, Attributes):
@@ -153,7 +153,7 @@ class SyncLogger(object):
         log = self.logger.sync_log(Body(message, etype), "Error", attributes, ctx)
         return self._span_processor.span_exporter.export_logs(log)
 
-    def fatal(self, message, attributes=None, etype=None, ctx=None):
+    def fatal(self, message, attributes=None, etype=None, ctx=None) -> bool:
         if _LOGLEVEL["FatalLevel"] < self._get_level():
             return False
         if attributes and not isinstance(attributes, Attributes):
