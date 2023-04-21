@@ -16,7 +16,7 @@ from exporter.config.config import Compression
 from exporter.public.client import StdoutClient, HTTPClient
 from exporter.ar_metric.metric_exporter import ARMetricExporter, meter
 from exporter.public.public import WithAnyRobotURL, WithCompression
-from exporter.resource.resource import metric_resource
+from exporter.resource.resource import metric_resource, set_service_info
 
 """
 写本地文件或者上报AR。
@@ -32,6 +32,8 @@ reader = PeriodicExportingMetricReader(
 """
 如果需要自定义histogram边界值，修改传入的参数view。
 """
+
+
 # boundary = [1, 2, 3]
 # aggregation = ExplicitBucketHistogramAggregation(boundary)
 # view = [View(instrument_type=Histogram, aggregation=aggregation)]
@@ -39,8 +41,6 @@ reader = PeriodicExportingMetricReader(
 # provider = MeterProvider(
 #     resource=metric_resource(), metric_readers=[reader], views=view
 # )
-provider = MeterProvider(resource=metric_resource(), metric_readers=[reader])
-metrics.set_meter_provider(provider)
 
 
 def observable_gauge_func(options: CallbackOptions) -> Iterable[Observation]:
@@ -62,8 +62,11 @@ def multiply(x: int, y: int) -> int:
 
 
 if __name__ == "__main__":
-    num = 4
+    set_service_info("YourServiceName", "1.0.0", "983d7e1d5e8cda64")
+    provider = MeterProvider(resource=metric_resource(), metric_readers=[reader])
+    metrics.set_meter_provider(provider)
 
+    num = 4
     num = add(num, 7)
     meter.create_observable_gauge(
         "gauge", [observable_gauge_func], "dimension", " a simple gauge"

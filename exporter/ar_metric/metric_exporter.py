@@ -7,7 +7,7 @@ from exporter.common.ar_metric import anyrobot_metrics_from_resource_metrics
 from exporter.public.client import Client
 from exporter.public.exporter import Exporter
 from opentelemetry import metrics
-from exporter.version.version import MetricInstrumentationName, MetricInstrumentationVersion, MetricInstrumentationURL
+from exporter.version.version import MetricInstrumentationName, TelemetrySDKVersion, MetricInstrumentationURL
 
 
 class ARMetricExporter(MetricExporter):
@@ -53,5 +53,5 @@ class ARMetricExporter(MetricExporter):
 
 
 meter = metrics.get_meter_provider().get_meter(
-    MetricInstrumentationName, MetricInstrumentationVersion, MetricInstrumentationURL
+    MetricInstrumentationName, TelemetrySDKVersion, MetricInstrumentationURL
 )

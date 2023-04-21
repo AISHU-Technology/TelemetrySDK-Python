@@ -21,6 +21,15 @@ global_service_version = "UnknownServiceVersion"
 global_service_instance_id = "UnknownServiceInstanceID"
 
 
+def set_service_info(name: str, version: str, instance_id: str):
+    global global_service_name
+    global global_service_version
+    global global_service_instance_id
+    global_service_name = name
+    global_service_version = version
+    global_service_instance_id = instance_id
+
+
 def inner_attributes() -> Attributes:
     info = platform.uname()
     inner = {
