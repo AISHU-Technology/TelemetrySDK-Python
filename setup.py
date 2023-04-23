@@ -1,39 +1,33 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from setuptools import setup
+from setuptools import setup, find_packages
 import os
 import shutil
 
-
-def script_path():
-    """
-    function: get absolute directory of the file
-        in which this function defines
-    usage: path = script_path()
-    note: please copy the function to target script,
-        don't use it like <module>.script_path()
-    """
-    import inspect
-    this_file = inspect.getfile(inspect.currentframe())
-    return os.path.abspath(os.path.dirname(this_file))
-
+from exporter.version.version import TelemetrySDKVersion
 
 if __name__ == '__main__':
     try:
-        source_path = os.path.join(script_path(), "tlogging")
-        setup(name='tlogging',
-              version="2.0.0",
-              package_dir={"tlogging": source_path},
-              packages=["tlogging"],
+        setup(name='TelemetrySDK-Python',
+              version=TelemetrySDKVersion,
+              description='包含Trace、Log、Metric的可观测性数据生产并上报到AnyRobot分析的软件包',
+              long_description='原Log文档链接:tlogging/README.md;新Exporter文档链接:exporter/README.md',
+              author='上海爱数信息技术股份有限公司©',
+              url='https://www.aishu.cn/',
+              download_ur='https://devops.aishu.cn/AISHUDevOps/ONE-Architecture/_git/TelemetrySDK-Python',
+              packages=find_packages(),
+              classifiers=['Development Status :: 5 - Production/Stable',
+                           'Intended Audience :: Developers',
+                           'Topic :: Software Development :: SDK'],
               zip_safe=False,
-              install_requires=['opentelemetry-api==1.5.0'],
+              install_requires=['opentelemetry-api==1.15.0'],
               tests_require=[
                   'allure-pytest',
                   'pytest',
                   'benchmark',
               ],
-              author="Copyright (c) Aishu Software Inc.",
-              description="Telemetry python SDK.",)
+              python_requires='>=3.7',
+              ),
     finally:
         if os.path.exists('./build'):
             shutil.rmtree('./build')
