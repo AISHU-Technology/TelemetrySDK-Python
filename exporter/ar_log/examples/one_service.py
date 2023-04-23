@@ -37,6 +37,7 @@ if __name__ == "__main__":
         HTTPClient(WithAnyRobotURL("http://127.0.0.1/api/feed_ingester/v1/jobs/job-983d7e1d5e8cda64/events"))))
 
     # 初始化业务日志器，业务日志同步模式上报数据到数据接收器。
+    # ！注意配置这个参数WithSyncMode()
     service_logger = SyncLogger(log_resource(), ARLogExporter(
         HTTPClient(WithAnyRobotURL("http://127.0.0.1/api/feed_ingester/v1/jobs/job-c9a577c302505576/events"),
                    WithSyncMode())))
