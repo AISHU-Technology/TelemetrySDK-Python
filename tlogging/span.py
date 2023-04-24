@@ -165,7 +165,7 @@ class Logger(object):
                 span.end()
 
     # self, processor, body, severity_text, ctx=None, attributes=None
-    def sync_log(self, body, severity_text, attributes=None, ctx=None) -> list[_Span]:
+    def sync_log(self, body, severity_text, attributes=None, ctx=None) -> "list['_Span']":
         span = LogSpan(processor=self._processor,
                        body=body,
                        severity_text=severity_text,

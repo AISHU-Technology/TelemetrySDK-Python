@@ -1,7 +1,7 @@
 import json
 
 
-def anyrobot_logs_from_logs(logs: list["_Span"], indent=4) -> str:
+def anyrobot_logs_from_logs(logs: "list['_Span']", indent=4) -> str:
     json_logs = json.dumps(
         obj=[
             json.loads(log.to_json())

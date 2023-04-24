@@ -23,7 +23,7 @@ class LogExporter(ABC):
         pass
 
     @abstractmethod
-    def export_logs(self, logs: list["_Span"]) -> bool:
+    def export_logs(self, logs: "list['_Span']") -> bool:
         """
         export_logs,用来上报logs,返回上报结果。
         """
@@ -41,7 +41,7 @@ class ConsoleExporter(LogExporter):
         if prettyprint:
             self.formatter = lambda span: span.to_json()
 
-    def export(self, spans: list["_Span"]):
+    def export(self, spans: "list['_Span']"):
         for span in spans:
             self.out.write(self.formatter(span))
         self.out.flush()
@@ -58,7 +58,7 @@ class ConsoleExporter(LogExporter):
         """
         pass
 
-    def export_logs(self, logs: list["_Span"]) -> bool:
+    def export_logs(self, logs: "list['_Span']") -> bool:
         """
         写本地默认成功。
         """

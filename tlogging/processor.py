@@ -11,7 +11,7 @@ MAX_SPAN_LIST_SIZE = "max_log_sapn_size"
 
 
 class Processor(object):
-    def __init__(self, exporters: dict[str, LogExporter], max_queue_size=None, max_span_list_size=None):
+    def __init__(self, exporters: "dict[str, LogExporter]", max_queue_size=None, max_span_list_size=None):
         if max_queue_size is None:
             max_queue_size = int(environ.get(MAX_QUEUE_SIZE, 2048))
 

@@ -25,7 +25,7 @@ class ARLogExporter(LogExporter):
         """
         self._exporter.client.stop()
 
-    def export_logs(self, logs: list["_Span"]) -> bool:
+    def export_logs(self, logs: "list['_Span']") -> bool:
         """
         先转换数据和golang统一。
         """
