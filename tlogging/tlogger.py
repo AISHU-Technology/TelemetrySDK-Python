@@ -25,7 +25,7 @@ class SamplerLogger(object):
         if not exporters:
             exporters_dict = {"ConsoleExporter": ConsoleExporter()}
         else:
-            exporters_dict = dict[str, LogExporter]()
+            exporters_dict = dict()
             for exporter in exporters:
                 exporters_dict[exporter.name()] = exporter
         self._span_processor = Processor(exporters_dict)
