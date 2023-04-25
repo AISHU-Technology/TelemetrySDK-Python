@@ -6,7 +6,7 @@ from io import BytesIO
 import requests
 import gzip
 import logging
-
+import codecs
 import urllib3
 
 from exporter.config.config import Option, Config
@@ -68,7 +68,7 @@ class StdoutClient(Client):
     def upload_data(self, data: str) -> bool:
         stdout.write(data)
         stdout.flush()
-        with open(self._path, "w") as file:
+        with codecs.open(self._path, 'a', encoding='utf-8') as file:
             file.write(data)
             file.flush()
         return False
