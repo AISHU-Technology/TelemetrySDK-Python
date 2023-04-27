@@ -13,7 +13,7 @@ from exporter.config.config import Option, Config
 from exporter.custom_errors.error_code import (
     InvalidFormat,
     JobIdNotFound,
-    PayloadTooLarge,
+    PayloadTooLarge, ExceedRetryElapsedTime,
 )
 from exporter.public.public import Compression
 import backoff
@@ -122,6 +122,7 @@ class HTTPClient(Client):
 
         for delay in self._retry(self._http_config.max_elapsed_time):
             if delay == self._http_config.max_elapsed_time:
+                logging.warning(ExceedRetryElapsedTime)
                 return True
             resp = self._http_client.post(
                 url=self._http_config.endpoint,

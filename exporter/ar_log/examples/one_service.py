@@ -1,8 +1,9 @@
+from exporter.config.config import Compression
 from tlogging import SamplerLogger, Attributes
 
 from exporter.ar_log.log_exporter import ARLogExporter
 from exporter.public.client import HTTPClient, StdoutClient
-from exporter.public.public import WithAnyRobotURL, WithSyncMode
+from exporter.public.public import WithAnyRobotURL, WithSyncMode, WithCompression, WithTimeout, WithHeader, WithRetry
 from exporter.resource.resource import log_resource, set_service_info
 from tlogging.exporter import ConsoleExporter
 from tlogging.tlogger import SyncLogger
@@ -42,6 +43,14 @@ if __name__ == "__main__":
         HTTPClient(WithAnyRobotURL("http://127.0.0.1/api/feed_ingester/v1/jobs/job-c9a577c302505576/events"),
                    WithSyncMode())))
 
+    # 全部配置项的logger，照抄之后删掉你不需要的配置。
+    all_config_logger = SyncLogger(log_resource(), ARLogExporter(
+        HTTPClient(WithAnyRobotURL("http://127.0.0.1/api/feed_ingester/v1/jobs/job-c9a577c302505576/events"),
+                   WithCompression(Compression(1)),
+                   WithTimeout(10),
+                   WithHeader({"self-defined-header": "something"}),
+                   WithRetry(5),
+                   WithSyncMode())))
     # 业务代码
     add(1, 2)
     multiply(3, 4)
