@@ -4,13 +4,14 @@ import collections
 import threading
 from os import environ
 
+from tlogging.exporter import LogExporter
 
 MAX_QUEUE_SIZE = "max_queue_size"
 MAX_SPAN_LIST_SIZE = "max_log_sapn_size"
 
 
 class Processor(object):
-    def __init__(self, exporter, max_queue_size=None, max_span_list_size=None):
+    def __init__(self, exporters: "dict[str, LogExporter]", max_queue_size=None, max_span_list_size=None):
         if max_queue_size is None:
             max_queue_size = int(environ.get(MAX_QUEUE_SIZE, 2048))
 
@@ -32,7 +33,7 @@ class Processor(object):
                 "max_export_batch_size must be less than or equal to max_queue_size."
             )
 
-        self.span_exporter = exporter
+        self.span_exporters = exporters
         self.queue = collections.deque(
             [], max_queue_size
         )
@@ -71,7 +72,8 @@ class Processor(object):
             self.spans_list[idx] = self.queue.pop()
             idx += 1
         try:
-            self.span_exporter.export(self.spans_list[:idx])
+            for exporter in self.span_exporters.values():
+                exporter.export_logs(self.spans_list[:idx])
         except Exception:
             pass
         for index in range(idx):
@@ -86,6 +88,5 @@ class Processor(object):
         with self.condition:
             self.condition.notify_all()
         self.worker_thread.join()
-
-
-
+        for exporter in self.span_exporters.values():
+            exporter.shutdown()

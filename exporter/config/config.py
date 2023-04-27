@@ -15,6 +15,7 @@ class Config:
         self.timeout: float = 10
         self.headers: "dict[str, str]" = {}
         self.max_elapsed_time: float = 60
+        self.is_sync: bool = False
 
     def __eq__(self, other) -> bool:
         if not isinstance(other, Config):

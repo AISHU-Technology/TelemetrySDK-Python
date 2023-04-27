@@ -1,33 +1,23 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import socket
+import collections
+import typing
+from opentelemetry.sdk.resources import Attributes
 
 from .texception import TException
 
 
 class Resources(object):
 
-    def __init__(self):
-        self.__hostname = self._get_hostname()
-        self.__telemetry_sdk_name = "Telemetry SDK"
-        self.__telemetry_sdk_version = "2.0.0"
-        self.__telemetry_sdk_language = "python"
-
-    def _get_hostname(self):
-        return socket.gethostname()
+    def __init__(self, attributes: dict):
+        if attributes is None:
+            self.__attributes = dict()
+        else:
+            self.__attributes = attributes
 
     @property
     def all_property(self):
-        my_property = dict()
-        if self.__hostname:
-            my_property["HOSTNAME"] = self.__hostname
-        if self.__telemetry_sdk_name:
-            my_property["Telemetry.SDK.Name"] = self.__telemetry_sdk_name
-        if self.__telemetry_sdk_version:
-            my_property["Telemetry.SDK.Version"] = self.__telemetry_sdk_version
-        if self.__telemetry_sdk_language:
-            my_property["Telemetry.SDK.Language"] = self.__telemetry_sdk_language
-        return my_property
+        return self.__attributes
 
 
 class Body(object):
@@ -78,4 +68,3 @@ class Attributes(object):
         my_property[self.__atype] = self.__message
 
         return my_property
-

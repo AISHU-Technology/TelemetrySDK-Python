@@ -6,14 +6,14 @@ from io import BytesIO
 import requests
 import gzip
 import logging
-
+import codecs
 import urllib3
 
 from exporter.config.config import Option, Config
 from exporter.custom_errors.error_code import (
     InvalidFormat,
     JobIdNotFound,
-    PayloadTooLarge,
+    PayloadTooLarge, ExceedRetryElapsedTime,
 )
 from exporter.public.public import Compression
 import backoff
@@ -68,7 +68,7 @@ class StdoutClient(Client):
     def upload_data(self, data: str) -> bool:
         stdout.write(data)
         stdout.flush()
-        with open(self._path, "w") as file:
+        with codecs.open(self._path, 'a', encoding='utf-8') as file:
             file.write(data)
             file.flush()
         return False
@@ -105,6 +105,9 @@ class HTTPClient(Client):
         """
         实际发送可观测性数据的函数。
         """
+        # 判断发送模式是否为同步
+        if self._http_config.is_sync:
+            self._http_config.headers["sync-mode"] = "sync"
         # 设置压缩方式和数据来源
         self._http_config.headers["Service-Language"] = "Python"
         if self._http_config.compression == Compression.NoCompression:
@@ -119,6 +122,7 @@ class HTTPClient(Client):
 
         for delay in self._retry(self._http_config.max_elapsed_time):
             if delay == self._http_config.max_elapsed_time:
+                logging.warning(ExceedRetryElapsedTime)
                 return True
             resp = self._http_client.post(
                 url=self._http_config.endpoint,
@@ -139,9 +143,9 @@ class HTTPClient(Client):
                 logging.warning(PayloadTooLarge)
                 return True
             if (
-                resp.status_code == 429
-                or resp.status_code == 500
-                or resp.status_code == 503
+                    resp.status_code == 429
+                    or resp.status_code == 500
+                    or resp.status_code == 503
             ):
                 self._http_config.headers["Retry-After"] = "true"
                 sleep(delay)
