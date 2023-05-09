@@ -1,23 +1,8 @@
-import datetime
 import json
 import typing
-
-from opentelemetry.sdk.metrics.export import (
-    MetricsData,
-    ResourceMetrics,
-    ScopeMetrics,
-    Metric,
-    Sum,
-    Histogram,
-    Gauge,
-    NumberDataPoint,
-    HistogramDataPoint,
-    AggregationTemporality,
-)
 from opentelemetry.sdk.trace import ReadableSpan, Event
 from opentelemetry.trace import SpanContext, Link, Status, StatusCode
 
-from tzlocal import get_localzone
 from exporter.common.attribute import (
     anyrobot_attributes_from_key_values,
     anyrobot_resource_from_resource,
