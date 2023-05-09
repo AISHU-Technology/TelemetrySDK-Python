@@ -47,6 +47,13 @@ def inner_attributes() -> Attributes:
     return inner
 
 
+def trace_resource() -> Resource:
+    attributes = inner_attributes()
+    attributes[ResourceAttributes.TELEMETRY_SDK_NAME] = MetricInstrumentationName
+    attributes[ResourceAttributes.TELEMETRY_SDK_VERSION] = TelemetrySDKVersion
+    return Resource.create(attributes=attributes, schema_url=MetricInstrumentationURL)
+
+
 def metric_resource() -> Resource:
     attributes = inner_attributes()
     attributes[ResourceAttributes.TELEMETRY_SDK_NAME] = MetricInstrumentationName
