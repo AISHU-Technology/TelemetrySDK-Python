@@ -59,7 +59,7 @@ def anyrobot_span_context_from_context(context: SpanContext) -> str:
             obj={
                 "TraceID": "00000000000000000000000000000000",
                 "SpanID": "0000000000000000",
-                "TraceFlags": "1",
+                "TraceFlags": "00",
                 "TraceState": "",
                 "Remote": False,
             },
@@ -67,9 +67,9 @@ def anyrobot_span_context_from_context(context: SpanContext) -> str:
         )
     return json.dumps(
         obj={
-            "TraceID": context.trace_id,
-            "SpanID": context.span_id,
-            "TraceFlags": context.trace_flags,
+            "TraceID": str(context.trace_id),
+            "SpanID": str(context.span_id),
+            "TraceFlags": "0" + str(context.trace_flags),
             "TraceState": context.trace_state.to_header(),
             "Remote": context.is_remote,
         },
@@ -104,7 +104,7 @@ def anyrobot_status_from_status(status: Status) -> str:
     return json.dumps(
         obj={
             "Code": convert_status_code_to_golang(status.status_code),
-            "Description": status.description,
+            "Description": "" if status.description is None else status.description,
         },
         ensure_ascii=False,
     )
