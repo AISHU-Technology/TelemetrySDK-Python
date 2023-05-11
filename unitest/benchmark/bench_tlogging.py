@@ -1,23 +1,27 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
+from exporter.resource.resource import log_resource
 from tlogging import SamplerLogger
 
-
-logger = SamplerLogger()
+logger = SamplerLogger(log_resource())
 logger.loglevel = "AllLevel"
 
+
 def test_log_info(benchmark):
-    benchmark(logger.info,"test")
+    benchmark(logger.info, "test")
+
 
 def test_log_warn(benchmark):
-    benchmark(logger.warn,"test")
+    benchmark(logger.warn, "test")
+
 
 def test_log_error(benchmark):
-    benchmark(logger.error,"test")
+    benchmark(logger.error, "test")
+
 
 def test_log_debug(benchmark):
-    benchmark(logger.debug,"test")
+    benchmark(logger.debug, "test")
+
 
 def test_log_trace(benchmark):
-    benchmark(logger.trace,"test")
+    benchmark(logger.trace, "test")

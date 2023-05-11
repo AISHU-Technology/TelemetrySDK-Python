@@ -22,9 +22,9 @@ from exporter.resource.resource import metric_resource, set_service_info
 写本地文件或者上报AR。
 """
 reader = PeriodicExportingMetricReader(
-    ARMetricExporter(StdoutClient("./AnyRobotMetric.txt"))
+    ARMetricExporter(StdoutClient("./AnyRobotMetric.json"))
     # ARMetricExporter(HTTPClient(
-    #     WithAnyRobotURL("http://a.b.c.d/"),
+    #     WithAnyRobotURL("http://127.0.0.1/api/feed_ingester/v1/jobs/job-864ab9d78f6a1843/events"),
     #     WithCompression(Compression.GzipCompression),
     # ))
 )

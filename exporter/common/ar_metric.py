@@ -218,7 +218,7 @@ def float_data_point(data_point: NumberDataPoint) -> str:
 
 
 def anyrobot_histogram_data_point_from_histogram_data_point(
-    histogram_data_point: HistogramDataPoint,
+        histogram_data_point: HistogramDataPoint,
 ) -> str:
     return json.dumps(
         obj={
@@ -246,7 +246,7 @@ def anyrobot_temporality_from_temporality(temporality: AggregationTemporality) -
     if temporality == 1:
         return "DeltaTemporality"
     if temporality == 2:
-        return "DeltaTemporality"
+        return "CumulativeTemporality"
     return "undefinedTemporality"
 
 

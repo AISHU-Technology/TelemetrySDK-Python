@@ -54,13 +54,6 @@ def trace_resource() -> Resource:
     return Resource.create(attributes=attributes, schema_url=MetricInstrumentationURL)
 
 
-def metric_resource() -> Resource:
-    attributes = inner_attributes()
-    attributes[ResourceAttributes.TELEMETRY_SDK_NAME] = MetricInstrumentationName
-    attributes[ResourceAttributes.TELEMETRY_SDK_VERSION] = TelemetrySDKVersion
-    return Resource.create(attributes=attributes, schema_url=MetricInstrumentationURL)
-
-
 def log_resource() -> Resources:
     info = platform.uname()
     host = {"ip": socket.gethostbyname(socket.gethostname()), "name": info.node, "arch": info.machine}
@@ -71,3 +64,10 @@ def log_resource() -> Resources:
     service = {"name": global_service_name, "version": global_service_version, "instance": instance}
     resource_attributes = {"host": host, "os": operating_system, "telemetry": telemetry, "service": service}
     return Resources(resource_attributes)
+
+
+def metric_resource() -> Resource:
+    attributes = inner_attributes()
+    attributes[ResourceAttributes.TELEMETRY_SDK_NAME] = MetricInstrumentationName
+    attributes[ResourceAttributes.TELEMETRY_SDK_VERSION] = TelemetrySDKVersion
+    return Resource.create(attributes=attributes, schema_url=MetricInstrumentationURL)

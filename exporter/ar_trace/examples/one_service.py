@@ -42,8 +42,8 @@ if __name__ == "__main__":
     # 在程序入口处初始化 tracer_provider 并注入正确的参数
     set_service_info("YourServiceName", "1.0.0", "983d7e1d5e8cda64")
     trace_exporter = ARTraceExporter(
-        # HTTPClient(WithAnyRobotURL("http://127.0.0.1/api/feed_ingester/v1/jobs/job-983d7e1d5e8cda64/events"))
-        StdoutClient()
+        # HTTPClient(WithAnyRobotURL("http://127.0.0.1/api/feed_ingester/v1/jobs/job-864ab9d78f6a1843/events"))
+        StdoutClient("AnyRobotTrace.json")
     )
     trace_processor = SynchronousMultiSpanProcessor()
     trace_processor.add_span_processor(BatchSpanProcessor(span_exporter=trace_exporter))
@@ -51,7 +51,6 @@ if __name__ == "__main__":
     set_tracer_provider(trace_provider)
 
     # 业务代码
-
     num = add(1, 2)
     num = multiply(num, 2)
     print(num)

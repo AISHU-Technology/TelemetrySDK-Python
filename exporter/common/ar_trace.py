@@ -111,9 +111,10 @@ def anyrobot_status_from_status(status: Status) -> str:
 
 
 def convert_status_code_to_golang(code: StatusCode) -> int:
-    if code.name == StatusCode.ERROR:
+    print(code.name)
+    if code.name == "ERROR":
         return 1
-    elif code.name == StatusCode.OK:
+    elif code.name == "OK":
         return 2
     else:
         return 0
