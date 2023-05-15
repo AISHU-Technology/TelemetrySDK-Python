@@ -11,8 +11,16 @@ from exporter.public.public import WithAnyRobotURL, WithCompression
 from exporter.resource.resource import set_service_info, trace_resource
 
 
-def add_before(x: int, y: int) -> int:
-    return x + y
+def trace_init():
+    set_service_info("YourServiceName:Calculation", "1.0.0", "983d7e1d5e8cda64")
+    trace_exporter = ARTraceExporter(
+        # HTTPClient(WithAnyRobotURL("http://127.0.0.1/api/feed_ingester/v1/jobs/job-864ab9d78f6a1843/events"))
+        StdoutClient("AnyRobotTrace.json")
+    )
+    trace_processor = SynchronousMultiSpanProcessor()
+    trace_processor.add_span_processor(BatchSpanProcessor(span_exporter=trace_exporter))
+    trace_provider = TracerProvider(resource=trace_resource(), active_span_processor=trace_processor)
+    set_tracer_provider(trace_provider)
 
 
 def add(x: int, y: int) -> int:
@@ -23,10 +31,6 @@ def add(x: int, y: int) -> int:
     return x + y
 
 
-def multiply_before(x: int, y: int) -> int:
-    return x * y
-
-
 def multiply(x: int, y: int) -> int:
     ctx = prop.extract(carrier=carrier)
     with tracer.start_as_current_span("multiply", context=ctx) as span:
@@ -35,22 +39,20 @@ def multiply(x: int, y: int) -> int:
     return x * y
 
 
+"""
+prop用于记录父节点的Context。
+carrier用于存放当前节点的Context。
+"""
 prop = TraceContextTextMapPropagator()
 carrier = {}
 
 if __name__ == "__main__":
     # 在程序入口处初始化 tracer_provider 并注入正确的参数
-    set_service_info("YourServiceName", "1.0.0", "983d7e1d5e8cda64")
-    trace_exporter = ARTraceExporter(
-        # HTTPClient(WithAnyRobotURL("http://127.0.0.1/api/feed_ingester/v1/jobs/job-864ab9d78f6a1843/events"))
-        StdoutClient("AnyRobotTrace.json")
-    )
-    trace_processor = SynchronousMultiSpanProcessor()
-    trace_processor.add_span_processor(BatchSpanProcessor(span_exporter=trace_exporter))
-    trace_provider = TracerProvider(resource=trace_resource(), active_span_processor=trace_processor)
-    set_tracer_provider(trace_provider)
+    trace_init()
 
     # 业务代码
     num = add(1, 2)
     num = multiply(num, 2)
+    num = add(num, 3)
+    num = multiply(num, 4)
     print(num)

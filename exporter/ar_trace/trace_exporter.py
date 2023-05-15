@@ -48,4 +48,7 @@ class ARTraceExporter(SpanExporter):
         return self._exporter.client.upload_data(data)
 
 
+"""
+全局变量，公用一个tracer生产Trace数据。
+"""
 tracer = trace.get_tracer(TraceInstrumentationName, TelemetrySDKVersion, None, TraceInstrumentationURL)
