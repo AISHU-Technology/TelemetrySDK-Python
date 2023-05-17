@@ -26,11 +26,9 @@ def trace_init():
 
 
 def address() -> str:
-    # ctx = prop.extract(carrier=carrier)
     with tracer.start_as_current_span("address") as span:
         province = requests.get("http://127.0.0.1:2023/province").text
         city = requests.get("http://127.0.0.1:2023/city").text
-        # prop.inject(carrier=carrier)
     return " Address : " + province + " Province " + city + " City "
 
 
