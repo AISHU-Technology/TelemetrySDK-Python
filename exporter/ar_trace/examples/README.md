@@ -1,5 +1,9 @@
 # 代码示例说明
 
+## 调用关系
+
+single_service.py单独文件
+
 ## single_service.py
 
 原始的包含同一个服务内提供加法、乘法处理函数。
@@ -14,6 +18,10 @@
 再阅读single_service_with_trace.py代码，后运行比较区别。查看AnyRobotTrace.json。
 
 # 代码示例说明
+
+## 调用关系
+
+multi_service_a.py->multi_service_b.py->multi_service_c.py
 
 ## multi_service_a.py
 
@@ -47,8 +55,9 @@
 改造后的数据库查询模拟。
 
 # multi_service运行过程
+
 1. 示例代码仅用于调试不用于生产，因此导包没有添加进requirement.txt，需要自行添加示例代码需要的依赖。
-2. 准备好本地数据库用于调试，直到成功运行multi_service_c.py。 
+2. 准备好本地数据库用于调试，直到成功运行multi_service_c.py。
 3. 启动multi_service_b.py，运行multi_service_a.py，成功获取“Address : SiChuan Province ChengDu City”。
 4. 切换成运行multi_service_b_with_trace.py、multi_service_a_with_trace.py，查看控制台和本地文件。
 5. StdoutClient仅用于调试，正式使用应修改为HTTPClient。

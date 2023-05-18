@@ -67,8 +67,8 @@ def anyrobot_span_context_from_context(context: SpanContext) -> str:
         )
     return json.dumps(
         obj={
-            "TraceID": str(hex(context.trace_id)).replace("0x", ""),
-            "SpanID": str(hex(context.span_id)).replace("0x", ""),
+            "TraceID": format(context.trace_id, 'x'),
+            "SpanID": format(context.span_id, 'x'),
             "TraceFlags": "0" + str(context.trace_flags),
             "TraceState": context.trace_state.to_header(),
             "Remote": context.is_remote,
