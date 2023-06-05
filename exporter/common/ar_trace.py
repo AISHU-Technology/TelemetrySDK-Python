@@ -1,7 +1,7 @@
 import json
 import typing
 from opentelemetry.sdk.trace import ReadableSpan, Event
-from opentelemetry.trace import SpanContext, Link, Status, StatusCode
+from opentelemetry.trace import SpanContext, Link, Status, StatusCode, format_trace_id, format_span_id
 
 from exporter.common.attribute import (
     anyrobot_attributes_from_key_values,
@@ -57,8 +57,8 @@ def anyrobot_span_context_from_context(context: SpanContext) -> str:
     if context is None:
         return json.dumps(
             obj={
-                "TraceID": "00000000000000000000000000000000",
-                "SpanID": "0000000000000000",
+                "TraceID": format_trace_id(0),
+                "SpanID": format_span_id(0),
                 "TraceFlags": "00",
                 "TraceState": "",
                 "Remote": False,
@@ -67,8 +67,8 @@ def anyrobot_span_context_from_context(context: SpanContext) -> str:
         )
     return json.dumps(
         obj={
-            "TraceID": format(context.trace_id, 'x'),
-            "SpanID": format(context.span_id, 'x'),
+            "TraceID": format_trace_id(context.trace_id),
+            "SpanID": format_span_id(context.span_id),
             "TraceFlags": "0" + str(context.trace_flags),
             "TraceState": context.trace_state.to_header(),
             "Remote": context.is_remote,

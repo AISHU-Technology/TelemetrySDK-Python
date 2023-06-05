@@ -8,6 +8,7 @@ from collections import OrderedDict
 import json
 from os import linesep
 from opentelemetry import trace as trace_api
+from opentelemetry.trace import format_trace_id, format_span_id
 from exporter.common.ar_metric import anyrobot_rfc3339_nano_from_unix_nano
 from .processor import Processor
 from .texception import TException
@@ -86,11 +87,11 @@ class LogSpan(_Span):
         self.__processor = processor
         ctx = trace_api.get_current_span(ctx).get_span_context()
         if not ctx.trace_id:
-            self.__trace_id = "00000000000000000000000000000000"
-            self.__span_id = "0000000000000000"
+            self.__trace_id = format_trace_id(0)
+            self.__span_id = format_span_id(0)
         else:
-            self.__trace_id = ctx.trace_id
-            self.__span_id = ctx.span_id
+            self.__trace_id = format_span_id(ctx.trace_id)
+            self.__span_id = format_span_id(ctx.span_id)
         self.__timestamp = self._get_time()
         self.__severity_text = severity_text
         if not isinstance(body, Body):
