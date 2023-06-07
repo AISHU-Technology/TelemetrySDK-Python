@@ -1,8 +1,7 @@
 backoff==2.2.1
-pytest==7.3.1
-requests==2.30.0
-setuptools==67.7.2
-tzlocal==4.3
+requests==2.31.0
+setuptools==67.8.0
+tzlocal==5.0.1
 utils==1.0.1
-opentelemetry-api==1.17.0
-opentelemetry-sdk==1.17.0
+opentelemetry-api==1.18.0
+opentelemetry-sdk==1.18.0

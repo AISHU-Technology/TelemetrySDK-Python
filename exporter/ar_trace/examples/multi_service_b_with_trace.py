@@ -1,5 +1,6 @@
 import flask
 from opentelemetry.instrumentation.flask import FlaskInstrumentor
+from opentelemetry.instrumentation.requests import RequestsInstrumentor
 from opentelemetry.sdk.trace import SynchronousMultiSpanProcessor, TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
 from opentelemetry.trace import set_tracer_provider
@@ -10,7 +11,6 @@ from exporter.public.client import StdoutClient
 from exporter.resource.resource import set_service_info, trace_resource
 
 app = flask.Flask(__name__)
-trace_provider = None
 
 
 def trace_init():
@@ -24,9 +24,9 @@ def trace_init():
         BatchSpanProcessor(span_exporter=trace_exporter, schedule_delay_millis=2000,
                            max_queue_size=10000, max_export_batch_size=400
                            ))
-    # global trace_provider
     trace_provider = TracerProvider(resource=trace_resource(), active_span_processor=trace_processor)
     set_tracer_provider(trace_provider)
+    RequestsInstrumentor().instrument()
     FlaskInstrumentor().instrument_app(app)
 
 
@@ -39,7 +39,6 @@ def index() -> str:
 def province() -> str:
     with tracer.start_as_current_span("service_province") as span:
         _province = get_province(3)
-    # trace_provider.force_flush()
     return _province
 
 
@@ -47,7 +46,6 @@ def province() -> str:
 def city() -> str:
     with tracer.start_as_current_span("service_city") as span:
         _city = get_city(4)
-    # trace_provider.force_flush()
     return _city
 
 
