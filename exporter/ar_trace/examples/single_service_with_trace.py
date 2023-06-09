@@ -29,7 +29,7 @@ def trace_init():
 def add(x: int, y: int) -> int:
     ctx = prop.extract(carrier=carrier)
     with tracer.start_as_current_span("add", context=ctx) as span:
-        span.set_attribute("add.value", x + y)
+        span.set_attribute("add_value", x + y)
         prop.inject(carrier=carrier)
     return x + y
 
@@ -37,7 +37,7 @@ def add(x: int, y: int) -> int:
 def multiply(x: int, y: int) -> int:
     ctx = prop.extract(carrier=carrier)
     with tracer.start_as_current_span("multiply", context=ctx) as span:
-        span.set_attribute("add.value", x * y)
+        span.set_attribute("add_value", x * y)
         prop.inject(carrier=carrier)
     return x * y
 

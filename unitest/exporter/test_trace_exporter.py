@@ -22,3 +22,7 @@ class TestTraceExporter(unittest.TestCase):
         # self.assertEqual(metric_exporter.export_metrics("正确的数据"), False)
         # self.assertEqual(metric_exporter.export_metrics("错误的数据"), False)
         pass
+
+
+if __name__ == "__main__":
+    unittest.main()

@@ -2,7 +2,7 @@ import unittest
 
 from opentelemetry.trace import StatusCode
 
-from exporter.common.ar_trace import convert_status_code_to_golang
+from exporter.common.ar_trace import convert_status_code_to_golang, anyrobot_status_from_status
 
 
 class TestARMetric(unittest.TestCase):
