@@ -20,7 +20,7 @@ if __name__ == '__main__':
                            'Intended Audience :: Developers',
                            'Topic :: Software Development :: SDK'],
               zip_safe=False,
-              install_requires=['opentelemetry-api==1.15.0'],
+              install_requires=['opentelemetry-api'],
               tests_require=[
                   'allure-pytest',
                   'pytest',
