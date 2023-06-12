@@ -32,7 +32,7 @@ class Processor(object):
             raise ValueError(
                 "max_export_batch_size must be less than or equal to max_queue_size."
             )
-        self.console_exporter = exporters.pop("ConsoleExporter")
+        self.console_exporter = exporters.pop("ConsoleExporter", None)
         self.span_exporters = exporters
         self.queue = collections.deque(
             [], max_queue_size

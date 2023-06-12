@@ -1,8 +1,11 @@
 import unittest
+from unittest import mock
 
-from opentelemetry.trace import StatusCode
+from opentelemetry.sdk.trace import Event
+from opentelemetry.trace import StatusCode, Status
 
-from exporter.common.ar_trace import convert_status_code_to_golang, anyrobot_status_from_status
+from exporter.common.ar_trace import convert_status_code_to_golang, anyrobot_status_from_status, \
+    anyrobot_event_from_event
 
 
 class TestARMetric(unittest.TestCase):
@@ -19,14 +22,14 @@ class TestARMetric(unittest.TestCase):
         pass
 
     def test_anyrobot_event_from_event(self):
+        self.assertEqual(anyrobot_event_from_event(mock.MagicMock()), 1)
         pass
 
     def test_anyrobot_status_from_status(self):
-        self.assertEqual(anyrobot_status_from_status(),1)
+        self.assertEqual(anyrobot_status_from_status(Status()), '{"Code": 0, "Description": ""}')
         pass
 
     def test_convert_status_code_to_golang(self):
         self.assertEqual(convert_status_code_to_golang(StatusCode(0)), 0)
         self.assertEqual(convert_status_code_to_golang(StatusCode(1)), 2)
         self.assertEqual(convert_status_code_to_golang(StatusCode(2)), 1)
-
