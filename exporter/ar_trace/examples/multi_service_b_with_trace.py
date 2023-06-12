@@ -7,7 +7,8 @@ from opentelemetry.trace import set_tracer_provider
 
 from exporter.ar_trace.examples.multi_service_c_with_trace import get_province, get_city
 from exporter.ar_trace.trace_exporter import ARTraceExporter, tracer
-from exporter.public.client import StdoutClient
+from exporter.public.client import StdoutClient, HTTPClient
+from exporter.public.public import WithAnyRobotURL
 from exporter.resource.resource import set_service_info, trace_resource
 
 app = flask.Flask(__name__)
