@@ -8,7 +8,7 @@ single_service.py单独文件
 
 原始的包含同一个服务内提供加法、乘法处理函数。
 
-## single_service_with_trace
+## single_service_with_trace.py
 
 改造后的同一个服务内加法、乘法函数在不是父子调用关系时，在同一条调用链上的代码埋点示例，目的是展示如何在代码中加入链路的初始化配置。
 
@@ -48,7 +48,7 @@ multi_service_a.py->multi_service_b.py->multi_service_c.py
 
 ## multi_service_b_with_trace.py
 
-改造后的flask框架，加入了传播链路上下文信息的插件：FlaskInstrumentor。
+改造后的flask框架，加入了传播链路上下文信息的插件：FlaskInstrumentor、RequestsInstrumentor。
 
 ## multi_service_c_with_trace.py
 

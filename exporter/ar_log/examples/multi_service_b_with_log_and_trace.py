@@ -46,16 +46,14 @@ def log_init():
     # 初始化系统日志器，系统日志在控制台输出，并且异步模式上报数据到数据接收器。
     global system_logger
     system_logger = SamplerLogger(log_resource(), ConsoleExporter(), ARLogExporter(
-        StdoutClient("multi_service_b_with_log.json")))
-    # HTTPClient(WithAnyRobotURL("http://127.0.0.1/api/feed_ingester/v1/jobs/job-983d7e1d5e8cda64/events"))))
+        HTTPClient(WithAnyRobotURL("http://127.0.0.1/api/feed_ingester/v1/jobs/job-983d7e1d5e8cda64/events"))))
 
     # 初始化业务日志器，业务日志同步模式上报数据到数据接收器。
     # ！注意配置这个参数WithSyncMode()
     global service_logger
     service_logger = SyncLogger(log_resource(), ARLogExporter(
-        StdoutClient("multi_service_b_with_log.json")))
-    # HTTPClient(WithAnyRobotURL("http://127.0.0.1/api/feed_ingester/v1/jobs/job-c9a577c302505576/events"),
-    #            WithSyncMode())))
+        HTTPClient(WithAnyRobotURL("http://127.0.0.1/api/feed_ingester/v1/jobs/job-c9a577c302505576/events"),
+                   WithSyncMode())))
 
     # 全部配置项的logger，照抄之后删掉你不需要的配置。
     all_config_logger = SyncLogger(log_resource(), ARLogExporter(

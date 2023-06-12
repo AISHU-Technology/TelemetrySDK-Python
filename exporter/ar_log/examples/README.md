@@ -8,14 +8,14 @@ single_service.py单独文件
 
 原始的包含同一个服务内提供加法、乘法处理函数。
 
-## single_service_with_trace
+## single_service_with_log.py
 
-改造后的同一个服务内加法、乘法函数在不是父子调用关系时，在同一条调用链上的代码埋点示例，目的是展示如何在代码中加入链路的初始化配置。
+改造后的同一个服务内加法、乘法函数记录日志示例，目的是展示如何在代码中加入系统日志器、业务日志器的初始化配置。
 
 # single_service运行过程
 
 先阅读single_service.py代码，后运行。
-再阅读single_service_with_trace.py代码，后运行比较区别。查看AnyRobotTrace.json。
+再阅读single_service_with_log.py代码，后运行比较区别。
 
 # 代码示例说明
 
@@ -42,15 +42,13 @@ multi_service_a.py->multi_service_b.py->multi_service_c.py
 |  3  | SiChuan  |
 |  4  | ChengDu  |
 
-## multi_service_a_with_trace.py
+## multi_service_a_with_log_and_trace.py
 
-改造后的模拟查询地址程序入口，目的是展示父子关系调用，如何在代码中加入链路的初始化配置以及在Python服务调用链中跨服务传播链路上下文信息。
+## multi_service_b_with_log_and_trace.py
 
-## multi_service_b_with_trace.py
+改造后的模拟查询地址程序入口，目的是展示如何在代码中加入链路、日志的初始化配置，以及在日志中关联链路。
 
-改造后的flask框架，加入了传播链路上下文信息的插件：FlaskInstrumentor。
-
-## multi_service_c_with_trace.py
+## multi_service_c_with_log_and_trace.py
 
 改造后的数据库查询模拟。
 
