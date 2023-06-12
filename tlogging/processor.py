@@ -13,11 +13,11 @@ MAX_SPAN_LIST_SIZE = "max_log_sapn_size"
 class Processor(object):
     def __init__(self, exporters: "dict[str, LogExporter]", max_queue_size=None, max_span_list_size=None):
         if max_queue_size is None:
-            max_queue_size = int(environ.get(MAX_QUEUE_SIZE, 2048))
+            max_queue_size = int(environ.get(MAX_QUEUE_SIZE, 512))
 
         if max_span_list_size is None:
             max_span_list_size = int(
-                environ.get(MAX_SPAN_LIST_SIZE, 512)
+                environ.get(MAX_SPAN_LIST_SIZE, 49)
             )
 
         if max_queue_size <= 0:
@@ -32,7 +32,7 @@ class Processor(object):
             raise ValueError(
                 "max_export_batch_size must be less than or equal to max_queue_size."
             )
-
+        self.console_exporter = exporters.pop("ConsoleExporter")
         self.span_exporters = exporters
         self.queue = collections.deque(
             [], max_queue_size
@@ -48,6 +48,8 @@ class Processor(object):
     def on_end(self, span):
         if self.done:
             return
+        if self.console_exporter:
+            self.console_exporter.export_logs([span])
         if len(self.queue) >= self.max_span_list_size:
             with self.condition:
                 self.condition.notify()
