@@ -20,12 +20,6 @@ class TestSpan(unittest.TestCase):
         self.severity_text = "warn"
         self.span = span.LogSpan(self.span_processor, self.body, self.severity_text, ctx=None, attributes=None)
 
-    def test__gen_trance_id(self):
-        self.assertIsNotNone(self.span._gen_trace_id())
-
-    def test__gen_span_id(self):
-        self.assertIsNotNone(self.span._gen_span_id())
-
     def test__set_attributes(self):
         self.assertRaises(TException, self.span.set_attributes, 123213)
         self.assertIsNone(self.span.set_attributes(Attributes("test", "ssss")))

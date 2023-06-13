@@ -37,54 +37,48 @@ class SamplerLogger(object):
             return
         if attributes and not isinstance(attributes, Attributes):
             raise TException("Object is not of type Attributes")
-        with self.logger.start_span(Body(message, etype), "Trace", ctx=ctx) as log_span:
-            if attributes:
-                log_span.set_attributes(attributes)
+        with self.logger.start_span(body=Body(message, etype), severity_text="Trace", ctx=ctx, attributes=attributes):
+            pass
 
     def debug(self, message, attributes=None, etype=None, ctx=None):
         if _LOGLEVEL["DebugLevel"] < self._get_level():
             return
         if attributes and not isinstance(attributes, Attributes):
             raise TException("Object is not of type Attributes")
-        with self.logger.start_span(Body(message, etype), "Debug", ctx=ctx) as log_span:
-            if attributes:
-                log_span.set_attributes(attributes)
+        with self.logger.start_span(body=Body(message, etype), severity_text="Debug", ctx=ctx, attributes=attributes):
+            pass
 
     def info(self, message, attributes=None, etype=None, ctx=None):
         if _LOGLEVEL["InfoLevel"] < self._get_level():
             return
         if attributes and not isinstance(attributes, Attributes):
             raise TException("Object is not of type Attributes")
-        with self.logger.start_span(Body(message, etype), "Info", ctx=ctx) as log_span:
-            if attributes:
-                log_span.set_attributes(attributes)
+        with self.logger.start_span(body=Body(message, etype), severity_text="Info", ctx=ctx, attributes=attributes):
+            pass
 
     def warn(self, message, attributes=None, etype=None, ctx=None):
         if _LOGLEVEL["WarnLevel"] < self._get_level():
             return
         if attributes and not isinstance(attributes, Attributes):
             raise TException("Object is not of type Attributes")
-        with self.logger.start_span(Body(message, etype), "Warn", ctx=ctx) as log_span:
-            if attributes:
-                log_span.set_attributes(attributes)
+        with self.logger.start_span(body=Body(message, etype), severity_text="Warn", ctx=ctx, attributes=attributes):
+            pass
 
     def error(self, message, attributes=None, etype=None, ctx=None):
         if _LOGLEVEL["ErrorLevel"] < self._get_level():
             return
         if attributes and not isinstance(attributes, Attributes):
             raise TException("Object is not of type Attributes")
-        with self.logger.start_span(Body(message, etype), "Error", ctx=ctx) as log_span:
-            if attributes:
-                log_span.set_attributes(attributes)
+        with self.logger.start_span(body=Body(message, etype), severity_text="Error", ctx=ctx, attributes=attributes):
+            pass
 
     def fatal(self, message, attributes=None, etype=None, ctx=None):
         if _LOGLEVEL["FatalLevel"] < self._get_level():
             return
         if attributes and not isinstance(attributes, Attributes):
             raise TException("Object is not of type Attributes")
-        with self.logger.start_span(Body(message, etype), "Fatal", ctx=ctx) as log_span:
-            if attributes:
-                log_span.set_attributes(attributes)
+        with self.logger.start_span(body=Body(message, etype), severity_text="Fatal", ctx=ctx, attributes=attributes):
+            pass
 
     def _get_level(self):
         return _LOGLEVEL.get(self.loglevel)

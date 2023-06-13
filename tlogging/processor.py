@@ -5,6 +5,7 @@ import threading
 from os import environ
 
 from tlogging.exporter import LogExporter
+from tlogging.repeat_task import RepeatingTimer
 
 MAX_QUEUE_SIZE = "max_queue_size"
 MAX_SPAN_LIST_SIZE = "max_log_sapn_size"
@@ -13,11 +14,11 @@ MAX_SPAN_LIST_SIZE = "max_log_sapn_size"
 class Processor(object):
     def __init__(self, exporters: "dict[str, LogExporter]", max_queue_size=None, max_span_list_size=None):
         if max_queue_size is None:
-            max_queue_size = int(environ.get(MAX_QUEUE_SIZE, 512))
+            max_queue_size = int(environ.get(MAX_QUEUE_SIZE, 2048))
 
         if max_span_list_size is None:
             max_span_list_size = int(
-                environ.get(MAX_SPAN_LIST_SIZE, 49)
+                environ.get(MAX_SPAN_LIST_SIZE, 512)
             )
 
         if max_queue_size <= 0:
@@ -44,6 +45,8 @@ class Processor(object):
         self.done = False
         self.spans_list = [None] * self.max_span_list_size
         self.worker_thread.start()
+        self.timer = RepeatingTimer(10, self.ticker)
+        self.timer.start()
 
     def on_end(self, span):
         if self.done:
@@ -55,16 +58,19 @@ class Processor(object):
                 self.condition.notify()
         self.queue.appendleft(span)
 
+    def ticker(self):
+        if len(self.queue) > 0:
+            with self.condition:
+                self.condition.notify()
+
     def worker(self):
         while not self.done:
             with self.condition:
                 if self.done:
                     break
-                if len(self.queue) < self.max_queue_size:
-                    self.condition.wait()
-                    if self.done:
-                        break
-
+                self.condition.wait()
+                if self.done:
+                    break
             self._export()
         self._drain_queue()
 
@@ -87,6 +93,7 @@ class Processor(object):
 
     def shutdown(self):
         self.done = True
+        self.timer.cancel()
         with self.condition:
             self.condition.notify_all()
         self.worker_thread.join()

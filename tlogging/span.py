@@ -132,12 +132,6 @@ class LogSpan(_Span):
         return anyrobot_rfc3339_nano_from_unix_nano(time.time_ns())
         # return int(time.time() * 1e9)
 
-    def _gen_span_id(self):
-        return random.getrandbits(64)
-
-    def _gen_trace_id(self):
-        return random.getrandbits(128)
-
     def end(self):
         self.__processor.on_end(self._readable_span())
 
@@ -149,15 +143,16 @@ class Logger(object):
         self._resources = resource
 
     @contextmanager
-    def start_span(self, body, severity_text, attributes=None, ctx=None):
+    def start_span(self, body, severity_text, ctx=None, attributes=None):
         span = None
         try:
-            span = LogSpan(processor=self._processor,
-                           body=body,
-                           severity_text=severity_text,
-                           ctx=ctx,
-                           attributes=attributes,
-                           resources=self._resources)
+            span = LogSpan(
+                body=body,
+                severity_text=severity_text,
+                ctx=ctx,
+                attributes=attributes,
+                resources=self._resources,
+                processor=self._processor)
             yield span
         except Exception as ex:
             raise TException(ex)
@@ -174,11 +169,3 @@ class Logger(object):
                        attributes=attributes,
                        resources=self._resources)
         return [span]
-
-
-def _format_traceid(trace_id):
-    return format(trace_id, "032x")
-
-
-def _format_spanid(span_id):
-    return format(span_id, "016x")

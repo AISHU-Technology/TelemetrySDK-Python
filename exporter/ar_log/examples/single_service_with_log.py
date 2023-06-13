@@ -8,9 +8,6 @@ from exporter.resource.resource import log_resource, set_service_info
 from tlogging.exporter import ConsoleExporter
 from tlogging.tlogger import SyncLogger
 
-system_logger = SamplerLogger(log_resource())
-service_logger = SyncLogger(log_resource())
-
 
 def log_init():
     # 设置服务名、服务版本号、服务运行实例ID
@@ -18,7 +15,8 @@ def log_init():
     # 初始化系统日志器，系统日志在控制台输出，并且异步模式上报数据到数据接收器。
     global system_logger
     system_logger = SamplerLogger(log_resource(), ConsoleExporter(), ARLogExporter(
-        HTTPClient(WithAnyRobotURL("http://127.0.0.1/api/feed_ingester/v1/jobs/job-983d7e1d5e8cda64/events"))))
+        HTTPClient(WithAnyRobotURL("http://127.0.0.1/api/feed_ingester/v1/jobs/job-983d7e1d5e8cda64/events"))),
+                                  ARLogExporter(StdoutClient("single_service_with_log.json")))
 
     # 初始化业务日志器，业务日志同步模式上报数据到数据接收器。
     # ！注意配置这个参数WithSyncMode()
@@ -28,6 +26,7 @@ def log_init():
                    WithSyncMode())))
 
     # 全部配置项的logger，照抄之后删掉你不需要的配置。
+    global all_config_logger
     all_config_logger = SyncLogger(log_resource(), ARLogExporter(
         HTTPClient(WithAnyRobotURL("http://127.0.0.1/api/feed_ingester/v1/jobs/job-c9a577c302505576/events"),
                    WithCompression(Compression(1)),
@@ -67,3 +66,6 @@ if __name__ == "__main__":
     num = add(num, 3)
     num = multiply(num, 4)
     print(num)
+    system_logger.shutdown()
+    service_logger.shutdown()
+    all_config_logger.shutdown()

@@ -32,10 +32,6 @@ def trace_init():
     RequestsInstrumentor().instrument()
 
 
-system_logger = SamplerLogger(log_resource())
-service_logger = SyncLogger(log_resource())
-
-
 def log_init():
     # 设置服务名、服务版本号、服务运行实例ID
     set_service_info("YourServiceName", "2.3.0", "983d7e1d5e8cda64")
@@ -52,6 +48,7 @@ def log_init():
                    WithSyncMode())))
 
     # 全部配置项的logger，照抄之后删掉你不需要的配置。
+    global all_config_logger
     all_config_logger = SyncLogger(log_resource(), ARLogExporter(
         HTTPClient(WithAnyRobotURL("http://127.0.0.1/api/feed_ingester/v1/jobs/job-c9a577c302505576/events"),
                    WithCompression(Compression(1)),
@@ -77,3 +74,6 @@ if __name__ == "__main__":
     log_init()
     # 业务代码
     print(address())
+    system_logger.shutdown()
+    service_logger.shutdown()
+    all_config_logger.shutdown()
