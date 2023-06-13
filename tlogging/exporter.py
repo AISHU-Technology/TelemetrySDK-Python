@@ -5,8 +5,6 @@ from abc import abstractmethod, ABC
 
 
 class LogExporter(ABC):
-    def __init__(self):
-        pass
 
     @abstractmethod
     def name(self) -> str:

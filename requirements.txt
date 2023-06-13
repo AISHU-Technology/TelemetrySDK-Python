@@ -3,6 +3,6 @@ requests==2.31.0
 setuptools==67.8.0
 tzlocal==5.0.1
 utils==1.0.1
-urllib3==2.0.3
+urllib3==1.25
 opentelemetry-api==1.18.0
 opentelemetry-sdk==1.18.0

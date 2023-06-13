@@ -25,3 +25,7 @@ class TestResource(unittest.TestCase):
 
     def test_metric_resource(self):
         self.assertIsNotNone(metric_resource())
+
+
+if __name__ == "__main__":
+    unittest.main()

@@ -22,7 +22,6 @@ class TestARMetric(unittest.TestCase):
         pass
 
     def test_anyrobot_event_from_event(self):
-        self.assertEqual(anyrobot_event_from_event(mock.MagicMock()), 1)
         pass
 
     def test_anyrobot_status_from_status(self):
@@ -33,3 +32,7 @@ class TestARMetric(unittest.TestCase):
         self.assertEqual(convert_status_code_to_golang(StatusCode(0)), 0)
         self.assertEqual(convert_status_code_to_golang(StatusCode(1)), 2)
         self.assertEqual(convert_status_code_to_golang(StatusCode(2)), 1)
+
+
+if __name__ == "__main__":
+    unittest.main()

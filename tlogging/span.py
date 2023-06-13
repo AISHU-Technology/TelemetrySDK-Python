@@ -130,7 +130,6 @@ class LogSpan(_Span):
 
     def _get_time(self):
         return anyrobot_rfc3339_nano_from_unix_nano(time.time_ns())
-        # return int(time.time() * 1e9)
 
     def end(self):
         self.__processor.on_end(self._readable_span())
@@ -160,7 +159,6 @@ class Logger(object):
             if span:
                 span.end()
 
-    # self, processor, body, severity_text, ctx=None, attributes=None
     def sync_log(self, body, severity_text, attributes=None, ctx=None) -> "list['_Span']":
         span = LogSpan(processor=self._processor,
                        body=body,

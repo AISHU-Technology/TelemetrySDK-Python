@@ -33,7 +33,6 @@ test_trace_2 = ReadableSpan(attributes=test_attribute, instrumentation_scope=Ins
 class TestTraceExporter(unittest.TestCase):
     def test_export(self):
         self.assertEqual(trace_exporter.export([test_trace_1]), SpanExportResult.SUCCESS)
-        pass
 
     def test_force_flush(self):
         self.assertEqual(trace_exporter.force_flush(), False)
@@ -43,7 +42,6 @@ class TestTraceExporter(unittest.TestCase):
 
     def test_export_traces(self):
         self.assertEqual(trace_exporter.export_traces([test_trace_2]), False)
-        pass
 
 
 if __name__ == "__main__":

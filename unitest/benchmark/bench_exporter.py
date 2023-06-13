@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import unittest
+
 from opentelemetry.sdk.resources import Resource
 from opentelemetry.sdk.trace import ReadableSpan, Span
 from opentelemetry.sdk.util.instrumentation import InstrumentationInfo, InstrumentationScope
@@ -32,6 +34,7 @@ def test_log_exporter_export(benchmark):
         log_exporter.export(spans)
 
     benchmark(benchmark_log_exporter_export)
+    _span_processor.shutdown()
 
 
 metric_exporter = ARMetricExporter(StdoutClient())
@@ -39,4 +42,8 @@ metric_exporter = ARMetricExporter(StdoutClient())
 
 def test_metric_exporter_export(benchmark):
     # benchmark(metric_exporter.export("metrics_data"))
+    pass
+
+
+if __name__ == "__main__":
     pass

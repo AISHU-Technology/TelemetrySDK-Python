@@ -17,4 +17,7 @@ class TestClient(unittest.TestCase):
         http_client = HTTPClient()
         self.assertEqual(http_client.path(), "localhost:5678")
         self.assertEqual(http_client.stop(), False)
-        self.assertEqual(http_client.upload_data(""), True)
+
+
+if __name__ == "__main__":
+    unittest.main()

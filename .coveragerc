@@ -1,4 +1,6 @@
 [run]
 omit=
     */__init__.py
-    */test_cover.py
+    unitest/*
+    ut_run.py
+    setup.py

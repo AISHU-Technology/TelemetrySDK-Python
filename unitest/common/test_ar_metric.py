@@ -46,3 +46,7 @@ class TestARMetric(unittest.TestCase):
 
     def test_anyrobot_rfc3339_nano_from_unix_nano(self):
         self.assertEqual(anyrobot_rfc3339_nano_from_unix_nano(1675067513326319500), "2023-01-30T16:31:53.326319+08:00")
+
+
+if __name__ == "__main__":
+    unittest.main()

@@ -14,7 +14,7 @@ if __name__ == '__main__':
               long_description='原Log文档链接:tlogging/README.md;新Exporter文档链接:exporter/README.md',
               author='上海爱数信息技术股份有限公司©',
               url='https://www.aishu.cn/',
-              download_ur='https://devops.aishu.cn/AISHUDevOps/ONE-Architecture/_git/TelemetrySDK-Python',
+              download_url='https://devops.aishu.cn/AISHUDevOps/ONE-Architecture/_git/TelemetrySDK-Python',
               packages=find_packages(),
               classifiers=['Development Status :: 5 - Production/Stable',
                            'Intended Audience :: Developers',

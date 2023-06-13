@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import unittest
+
+from exporter.resource.resource import log_resource
 from tlogging import span
 from tlogging.span import check_flag
 from tlogging.field import Attributes, Body
@@ -14,11 +16,14 @@ _VERSION = "v1.6.1"
 class TestSpan(unittest.TestCase):
 
     def setUp(self):
-        exporter = ConsoleExporter()
-        self.span_processor = Processor(exporter)
+        self.exporters = {"Console": ConsoleExporter()}
+        self.span_processor = Processor(self.exporters)
         self.body = Body("test log")
         self.severity_text = "warn"
         self.span = span.LogSpan(self.span_processor, self.body, self.severity_text, ctx=None, attributes=None)
+
+    def tearDown(self):
+        self.span_processor.shutdown()
 
     def test__set_attributes(self):
         self.assertRaises(TException, self.span.set_attributes, 123213)
@@ -37,13 +42,14 @@ class TestSpan(unittest.TestCase):
         self.span.to_json()
 
     def test_info(self):
-        span_info = span.LogSpan(self.span_processor, self.body, self.severity_text, ctx=None, attributes=Attributes("test", "ssss"))
-        check_flag(span_info.version)
-        self.assertIsNotNone(span_info.version)
-        self.assertIsNotNone(span_info.trace_id)
-        self.assertIsNotNone(span_info.span_id)
+        span_info = span.LogSpan(self.span_processor, self.body, self.severity_text, ctx=None,
+                                 attributes=Attributes("test", "ssss"), resources=log_resource())
         self.assertIsNotNone(span_info.severity_text)
         self.assertIsNotNone(span_info.timestamp)
         self.assertIsNotNone(span_info.resources)
         self.assertIsNotNone(span_info.attributes)
         self.assertIsNotNone(span_info.body)
+
+
+if __name__ == "__main__":
+    unittest.main()

@@ -17,6 +17,8 @@ _LOGLEVEL = {
     "FatalLevel": 6,
 }
 
+attributes_error = "Object is not of type Attributes"
+
 
 class SamplerLogger(object):
     loglevel = "InfoLevel"
@@ -36,49 +38,49 @@ class SamplerLogger(object):
         if _LOGLEVEL["TraceLevel"] < self._get_level():
             return
         if attributes and not isinstance(attributes, Attributes):
-            raise TException("Object is not of type Attributes")
+            raise TException(attributes_error)
         with self.logger.start_span(body=Body(message, etype), severity_text="Trace", ctx=ctx, attributes=attributes):
-            pass
+            return
 
     def debug(self, message, attributes=None, etype=None, ctx=None):
         if _LOGLEVEL["DebugLevel"] < self._get_level():
             return
         if attributes and not isinstance(attributes, Attributes):
-            raise TException("Object is not of type Attributes")
+            raise TException(attributes_error)
         with self.logger.start_span(body=Body(message, etype), severity_text="Debug", ctx=ctx, attributes=attributes):
-            pass
+            return
 
     def info(self, message, attributes=None, etype=None, ctx=None):
         if _LOGLEVEL["InfoLevel"] < self._get_level():
             return
         if attributes and not isinstance(attributes, Attributes):
-            raise TException("Object is not of type Attributes")
+            raise TException(attributes_error)
         with self.logger.start_span(body=Body(message, etype), severity_text="Info", ctx=ctx, attributes=attributes):
-            pass
+            return
 
     def warn(self, message, attributes=None, etype=None, ctx=None):
         if _LOGLEVEL["WarnLevel"] < self._get_level():
             return
         if attributes and not isinstance(attributes, Attributes):
-            raise TException("Object is not of type Attributes")
+            raise TException(attributes_error)
         with self.logger.start_span(body=Body(message, etype), severity_text="Warn", ctx=ctx, attributes=attributes):
-            pass
+            return
 
     def error(self, message, attributes=None, etype=None, ctx=None):
         if _LOGLEVEL["ErrorLevel"] < self._get_level():
             return
         if attributes and not isinstance(attributes, Attributes):
-            raise TException("Object is not of type Attributes")
+            raise TException(attributes_error)
         with self.logger.start_span(body=Body(message, etype), severity_text="Error", ctx=ctx, attributes=attributes):
-            pass
+            return
 
     def fatal(self, message, attributes=None, etype=None, ctx=None):
         if _LOGLEVEL["FatalLevel"] < self._get_level():
             return
         if attributes and not isinstance(attributes, Attributes):
-            raise TException("Object is not of type Attributes")
+            raise TException(attributes_error)
         with self.logger.start_span(body=Body(message, etype), severity_text="Fatal", ctx=ctx, attributes=attributes):
-            pass
+            return
 
     def _get_level(self):
         return _LOGLEVEL.get(self.loglevel)
@@ -104,7 +106,7 @@ class SyncLogger(object):
         if _LOGLEVEL["TraceLevel"] < self._get_level():
             return False
         if attributes and not isinstance(attributes, Attributes):
-            raise TException("Object is not of type Attributes")
+            raise TException(attributes_error)
         log = self._logger.sync_log(Body(message, etype), "Trace", attributes, ctx)
         return self._exporter.export_logs(log)
 
@@ -112,7 +114,7 @@ class SyncLogger(object):
         if _LOGLEVEL["DebugLevel"] < self._get_level():
             return False
         if attributes and not isinstance(attributes, Attributes):
-            raise TException("Object is not of type Attributes")
+            raise TException(attributes_error)
         log = self._logger.sync_log(Body(message, etype), "Debug", attributes, ctx)
         return self._exporter.export_logs(log)
 
@@ -120,7 +122,7 @@ class SyncLogger(object):
         if _LOGLEVEL["InfoLevel"] < self._get_level():
             return False
         if attributes and not isinstance(attributes, Attributes):
-            raise TException("Object is not of type Attributes")
+            raise TException(attributes_error)
         log = self._logger.sync_log(Body(message, etype), "Info", attributes, ctx)
         return self._exporter.export_logs(log)
 
@@ -128,7 +130,7 @@ class SyncLogger(object):
         if _LOGLEVEL["WarnLevel"] < self._get_level():
             return False
         if attributes and not isinstance(attributes, Attributes):
-            raise TException("Object is not of type Attributes")
+            raise TException(attributes_error)
         log = self._logger.sync_log(Body(message, etype), "Warn", attributes, ctx)
         return self._exporter.export_logs(log)
 
@@ -136,7 +138,7 @@ class SyncLogger(object):
         if _LOGLEVEL["ErrorLevel"] < self._get_level():
             return False
         if attributes and not isinstance(attributes, Attributes):
-            raise TException("Object is not of type Attributes")
+            raise TException(attributes_error)
         log = self._logger.sync_log(Body(message, etype), "Error", attributes, ctx)
         return self._exporter.export_logs(log)
 
@@ -144,7 +146,7 @@ class SyncLogger(object):
         if _LOGLEVEL["FatalLevel"] < self._get_level():
             return False
         if attributes and not isinstance(attributes, Attributes):
-            raise TException("Object is not of type Attributes")
+            raise TException(attributes_error)
         log = self._logger.sync_log(Body(message, etype), "Fatal", attributes, ctx)
         return self._exporter.export_logs(log)
 
