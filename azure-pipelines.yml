@@ -1,0 +1,210 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+  batch: true
+  branches:
+    include:
+      - "feature-*"
+      - "feature/*"
+      - "release-*"
+      - "release/*"
+      - "develop"
+      - "master"
+
+variables:
+  - group: anyrobot-global-config
+  - name: SONARQUBE_IMAGE
+    value: "acr.aishu.cn/public/sonarsource/sonar-scanner-cli:4.7"
+  - name: LintReportName # 此行保持一致
+    value: lint_report.xml
+  - name: UTReportName # 此行保持一致
+    value: ut_report.xml
+  - name: CoverageReportName # 此行保持一致
+    value: coverage_report.xml
+
+
+resources:
+  containers:
+    - container: dotnet
+      endpoint: acr-registry
+      image: dotnet/runtime:3.1-bullseye-slim
+
+stages:
+  - stage: CodeCheck
+    displayName: 代码检查
+    jobs:
+      - job: _1CodeCheck
+        displayName: 1.代码检查(UT/Lint)
+        workspace:
+          clean: all
+        pool:
+          name: telemetrySDK-pool
+          demands:
+            - python3
+            - docker
+        steps:
+          - checkout: self
+
+          - task: CmdLine@2
+            displayName: 安装项目依赖
+            inputs:
+              script: |
+                python3 -m pip install --upgrade pip
+                pip3 install -r ./requirements.txt
+                pip3 install -r ./pytest_requirements.txt
+                pip3 install .
+
+          - task: Bash@3
+            displayName: 单元测试
+            inputs:
+              targetType: 'inline'
+              script: |
+                #!/usr/bin/env bash
+                set -ex
+                mkdir -p $(Build.SourcesDirectory)/TelemetrySDK-Python/report
+                pytest ./unitest/ > ./ut.xml
+                touch lint.xml
+                python3 ut_run.py
+                mv ./ut.xml $(Build.SourcesDirectory)/TelemetrySDK-Python/report/$(UTReportName)
+                mv ./lint.xml $(Build.SourcesDirectory)/TelemetrySDK-Python/report/$(LintReportName)
+                mv ./coverage.xml $(Build.SourcesDirectory)/TelemetrySDK-Python/report/$(CoverageReportName)
+
+          - task: PublishBuildArtifacts@1  # 将相应目录publish到artifact
+            inputs:
+              PathtoPublish: '$(Build.SourcesDirectory)/TelemetrySDK-Python/report/'
+              ArtifactName: CodeCheckReportFiles
+
+          - task: Post-Bash@3
+            inputs:
+              targetType: inline
+              script: |
+                rm -rf $(Build.SourcesDirectory)
+
+      - job: _2UploadReport
+        displayName: 2.上传检查报告
+        container: dotnet
+        dependsOn: _1CodeCheck
+        pool:
+          name: telemetrySDK-pool
+        steps:
+          - task: DownloadBuildArtifacts@0
+            inputs:
+              artifactName: CodeCheckReportFiles
+              downloadPath: $(Build.BinariesDirectory)
+
+          - task: PublishTestResults@2
+            displayName: 发布UT测试报告
+            inputs:
+              testResultsFormat: 'JUnit'
+              testResultsFiles: '$(Build.BinariesDirectory)/CodeCheckReportFiles/$(UTReportName)'
+              testRunTitle: 'UT Result'
+              failTaskOnFailedTests: false
+
+          - task: BuildQualityChecks@8           # 此行保持一致     # UT卡点
+            displayName: Quality Gate UT         # 此行保持一致
+            inputs:
+              checkWarnings: true                # 此行保持一致
+              warningFailOption: 'fixed'
+              warningThreshold: '0'
+              showStatistics: false
+              evaluateTaskWarnings: false
+              evaluateFileWarnings: true
+              warningFilesFolder: '$(Build.BinariesDirectory)/CodeCheckReportFiles'
+              warningFiles: '**/$(UTReportName)'    # 此行保持一致
+              warningFileFilters: '/^.+<\/failure>.*?$/'
+              warningFilesArtifact: 'CodeCheckReportFiles'
+
+          - task: PublishTestResults@2
+            displayName: 发布Lint测试报告
+            inputs:
+              testResultsFormat: 'JUnit'
+              testResultsFiles: '$(Build.BinariesDirectory)/CodeCheckReportFiles/$(LintReportName)'
+              testRunTitle: 'Lint Result'
+              failTaskOnFailedTests: false
+
+          - task: BuildQualityChecks@8         # 此行保持一致  Lint卡点
+            displayName: Quality Gate Lint     # 此行保持一致
+            inputs:
+              checkWarnings: true              # 此行保持一致
+              warningFailOption: 'fixed'
+              warningThreshold: '5'
+              showStatistics: false
+              evaluateTaskWarnings: false
+              evaluateFileWarnings: true
+              warningFilesFolder: '$(Build.BinariesDirectory)/CodeCheckReportFiles'
+              warningFiles: '**/$(LintReportName)'    # 此行保持一致
+              warningFileFilters: '/^.+<\/failure>.*?$/'
+              warningFilesArtifact: 'CodeCheckReportFiles'
+
+          - task: PublishCodeCoverageResults@1
+            displayName: 发布UT测试覆盖率报告
+            inputs:
+              codeCoverageTool: 'Cobertura'
+              summaryFileLocation: '$(Build.BinariesDirectory)/CodeCheckReportFiles/$(CoverageReportName)'
+
+          - task: BuildQualityChecks@8           # 此行保持一致 代码覆盖率卡点
+            displayName: Quality Gate Coverage   # 此行保持一致
+            inputs:
+              coverageType: 'lines'              # 代表行覆盖率
+              coverageFailOption: 'fixed'
+              checkCoverage: true                # 此行保持一致
+              coverageThreshold: '80.0'          # 代码覆盖率卡点阈值
+
+      - job: _3UploadSonarQube
+        displayName: 3.上传SonarQube
+        dependsOn: _2UploadReport
+        workspace:
+          clean: all
+        pool:
+          name: telemetrySDK-pool
+          demands:
+            - docker
+        steps:
+          - checkout: self
+          - task: DownloadBuildArtifacts@0
+            inputs:
+              artifactName: CodeCheckReportFiles
+              downloadPath: $(Build.SourcesDirectory)
+
+          - task: Bash@3
+            displayName: 上传SonarQube
+            inputs:
+              targetType: 'inline'
+              script: |
+                #!/usr/bin/env bash
+                set -ex
+                
+                APP_NAME="TelemetrySDK-Python"
+                INCLUSION_DIR=""
+                EXCLUSION_DIR="**/*errors*/**,**/examples/**,unitest/**,**/__init__.py,setup.py,ut_run.py"
+                GLOBAL_EXCLUSION_DIR="**/report/**"
+
+                docker run --rm \
+                        -u root:root \
+                        -v $(pwd):/TelemetrySDK-Python \
+                        $(SONARQUBE_IMAGE) bash -c "
+                    set -ex
+
+                    cd /TelemetrySDK-Python
+                    mv CodeCheckReportFiles report
+                    sonar-scanner \
+                      -D sonar.host.url=$(sonarqube.server) \
+                      -D sonar.projectKey=${APP_NAME} \
+                      -D sonar.branch.name=$(Build.SourceBranchName) \
+                      -D sonar.sources=. \
+                      -D sonar.sonar.inclusions=${INCLUSION_DIR} \
+                      -D sonar.coverage.exclusions=${EXCLUSION_DIR} \
+                      -D sonar.cpd.exclusions=${EXCLUSION_DIR} \
+                      -D sonar.global.exclusions=${GLOBAL_EXCLUSION_DIR} \
+                      -D sonar.language=py \
+                      -D sonar.python.coverage.reportPaths=report/$(CoverageReportName) \
+                      -D sonar.login=$(sonarqube.token)
+                    "
+          - task: Post-Bash@3
+            inputs:
+              targetType: 'inline'
+              script: |
+                rm -rf $(Build.SourcesDirectory)
