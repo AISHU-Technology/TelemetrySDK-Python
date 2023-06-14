@@ -1,4 +1,5 @@
-pytest==7.3.2
-pytest-cover==3.0.0
-allure-pytest==2.13.2
-pylint==2.17.4
+allure-pytest~=2.13.2
+pytest~=7.3.2
+pytest-cover~=3.0.0
+pytest-benchmark~=4.0.0
+pylint~=2.17.4
