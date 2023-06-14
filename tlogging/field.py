@@ -20,10 +20,13 @@ class Resources(object):
         return self.__attributes
 
 
+etype_error = "etype should be str type"
+
+
 class Body(object):
     def __init__(self, message, etype=None):
         if etype and not isinstance(etype, str):
-            raise TException("etype should be str type")
+            raise TException(etype_error)
         if not isinstance(message, str) and not etype:
             raise TException("When etype does not exist, the message should be of type str")
         self.__message = message
@@ -31,7 +34,7 @@ class Body(object):
 
     def set_type(self, etype):
         if not isinstance(etype, str):
-            raise TException("etype should be str type")
+            raise TException(etype_error)
         self.__etype = etype
 
     def set_message(self, message):
@@ -55,7 +58,7 @@ class Attributes(object):
 
     def __init__(self, message, atype):
         if atype and not isinstance(atype, str):
-            raise TException("etype should be str type")
+            raise TException(etype_error)
         if not atype:
             raise TException("The atype cannot be None")
         self.__message = message

@@ -8,6 +8,7 @@ from collections import OrderedDict
 import json
 from os import linesep
 from opentelemetry import trace as trace_api
+from opentelemetry.trace import format_trace_id, format_span_id
 from exporter.common.ar_metric import anyrobot_rfc3339_nano_from_unix_nano
 from .processor import Processor
 from .texception import TException
@@ -86,11 +87,11 @@ class LogSpan(_Span):
         self.__processor = processor
         ctx = trace_api.get_current_span(ctx).get_span_context()
         if not ctx.trace_id:
-            self.__trace_id = "00000000000000000000000000000000"
-            self.__span_id = "0000000000000000"
+            self.__trace_id = format_trace_id(0)
+            self.__span_id = format_span_id(0)
         else:
-            self.__trace_id = ctx.trace_id
-            self.__span_id = ctx.span_id
+            self.__trace_id = format_span_id(ctx.trace_id)
+            self.__span_id = format_span_id(ctx.span_id)
         self.__timestamp = self._get_time()
         self.__severity_text = severity_text
         if not isinstance(body, Body):
@@ -129,13 +130,6 @@ class LogSpan(_Span):
 
     def _get_time(self):
         return anyrobot_rfc3339_nano_from_unix_nano(time.time_ns())
-        # return int(time.time() * 1e9)
-
-    def _gen_span_id(self):
-        return random.getrandbits(64)
-
-    def _gen_trace_id(self):
-        return random.getrandbits(128)
 
     def end(self):
         self.__processor.on_end(self._readable_span())
@@ -148,15 +142,16 @@ class Logger(object):
         self._resources = resource
 
     @contextmanager
-    def start_span(self, body, severity_text, attributes=None, ctx=None):
+    def start_span(self, body, severity_text, ctx=None, attributes=None):
         span = None
         try:
-            span = LogSpan(processor=self._processor,
-                           body=body,
-                           severity_text=severity_text,
-                           ctx=ctx,
-                           attributes=attributes,
-                           resources=self._resources)
+            span = LogSpan(
+                body=body,
+                severity_text=severity_text,
+                ctx=ctx,
+                attributes=attributes,
+                resources=self._resources,
+                processor=self._processor)
             yield span
         except Exception as ex:
             raise TException(ex)
@@ -164,7 +159,6 @@ class Logger(object):
             if span:
                 span.end()
 
-    # self, processor, body, severity_text, ctx=None, attributes=None
     def sync_log(self, body, severity_text, attributes=None, ctx=None) -> "list['_Span']":
         span = LogSpan(processor=self._processor,
                        body=body,
@@ -173,11 +167,3 @@ class Logger(object):
                        attributes=attributes,
                        resources=self._resources)
         return [span]
-
-
-def _format_traceid(trace_id):
-    return format(trace_id, "032x")
-
-
-def _format_spanid(span_id):
-    return format(span_id, "016x")

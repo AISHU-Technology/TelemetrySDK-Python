@@ -23,3 +23,9 @@ class TestAttribute(unittest.TestCase):
         self.assertEqual(standardize_value_type(3.4), "FLOAT")
         self.assertEqual(standardize_value_type(""), "STRING")
         self.assertEqual(standardize_value_type((12, 34)), "INTARRAY")
+        self.assertEqual(standardize_value_type(()), "STRINGARRAY")
+        self.assertEqual(standardize_value_type({}), "<class 'dict'>")
+
+
+if __name__ == "__main__":
+    unittest.main()

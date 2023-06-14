@@ -20,10 +20,10 @@ class ARMetricExporter(MetricExporter):
         MetricExporter.__init__(self)
 
     def export(
-        self,
-        metrics_data: MetricsData,
-        timeout_millis: float = 10_000,
-        **kwargs,
+            self,
+            metrics_data: MetricsData,
+            timeout_millis: float = 10_000,
+            **kwargs,
     ) -> MetricExportResult:
         """
         判断发送成功或失败。
@@ -52,6 +52,9 @@ class ARMetricExporter(MetricExporter):
         return self._exporter.client.upload_data(data)
 
 
+"""
+全局变量，公用一个meter生产Metric数据。
+"""
 meter = metrics.get_meter_provider().get_meter(
     MetricInstrumentationName, TelemetrySDKVersion, MetricInstrumentationURL
 )

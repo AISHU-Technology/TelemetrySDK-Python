@@ -1,23 +1,43 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
+from exporter.resource.resource import log_resource
 from tlogging import SamplerLogger
 
 
-logger = SamplerLogger()
-logger.loglevel = "AllLevel"
-
 def test_log_info(benchmark):
-    benchmark(logger.info,"test")
+    logger = SamplerLogger(log_resource())
+    logger.loglevel = "AllLevel"
+    benchmark(logger.info, "test")
+    logger.shutdown()
+
 
 def test_log_warn(benchmark):
-    benchmark(logger.warn,"test")
+    logger = SamplerLogger(log_resource())
+    logger.loglevel = "AllLevel"
+    benchmark(logger.warn, "test")
+    logger.shutdown()
+
 
 def test_log_error(benchmark):
-    benchmark(logger.error,"test")
+    logger = SamplerLogger(log_resource())
+    logger.loglevel = "AllLevel"
+    benchmark(logger.error, "test")
+    logger.shutdown()
+
 
 def test_log_debug(benchmark):
-    benchmark(logger.debug,"test")
+    logger = SamplerLogger(log_resource())
+    logger.loglevel = "AllLevel"
+    benchmark(logger.debug, "test")
+    logger.shutdown()
+
 
 def test_log_trace(benchmark):
-    benchmark(logger.trace,"test")
+    logger = SamplerLogger(log_resource())
+    logger.loglevel = "AllLevel"
+    benchmark(logger.trace, "test")
+    logger.shutdown()
+
+
+if __name__ == "__main__":
+    pass

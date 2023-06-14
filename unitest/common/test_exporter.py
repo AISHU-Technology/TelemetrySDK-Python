@@ -20,3 +20,7 @@ class TestExporter(unittest.TestCase):
     def test_client(self):
         exporter = Exporter(StdoutClient())
         self.assertEqual(exporter.client, exporter.client)
+
+
+if __name__ == "__main__":
+    unittest.main()

@@ -102,9 +102,6 @@ class WithSyncMode(Option):
     设置同步模式发送。
     """
 
-    def __init__(self):
-        pass
-
     def apply(self, cfg: Config) -> Config:
         cfg.is_sync = True
         return cfg

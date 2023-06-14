@@ -59,3 +59,7 @@ class TestPublic(unittest.TestCase):
         retry = 12
         cfg.max_elapsed_time = retry
         self.assertEqual(WithRetry(retry).apply(Config()), cfg)
+
+
+if __name__ == "__main__":
+    unittest.main()
