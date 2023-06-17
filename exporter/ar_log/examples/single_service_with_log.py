@@ -2,7 +2,7 @@ from exporter.config.config import Compression
 from tlogging import SamplerLogger, Attributes
 
 from exporter.ar_log.log_exporter import ARLogExporter
-from exporter.public.client import HTTPClient, StdoutClient
+from exporter.public.client import HTTPClient, StdoutClient, FileClient
 from exporter.public.public import WithAnyRobotURL, WithSyncMode, WithCompression, WithTimeout, WithHeader, WithRetry
 from exporter.resource.resource import log_resource, set_service_info
 from tlogging.exporter import ConsoleExporter
@@ -11,12 +11,11 @@ from tlogging.tlogger import SyncLogger
 
 def log_init():
     # 设置服务名、服务版本号、服务运行实例ID
-    set_service_info("YourServiceName", "2.3.0", "983d7e1d5e8cda64")
+    set_service_info("YourServiceName", "2.4.1", "983d7e1d5e8cda64")
     # 初始化系统日志器，系统日志在控制台输出，并且异步模式上报数据到数据接收器。
     global system_logger
     system_logger = SamplerLogger(log_resource(), ConsoleExporter(), ARLogExporter(
-        HTTPClient(WithAnyRobotURL("http://127.0.0.1/api/feed_ingester/v1/jobs/job-983d7e1d5e8cda64/events"))),
-                                  ARLogExporter(StdoutClient("single_service_with_log.json")))
+        HTTPClient(WithAnyRobotURL("http://127.0.0.1/api/feed_ingester/v1/jobs/job-983d7e1d5e8cda64/events"))))
 
     # 初始化业务日志器，业务日志同步模式上报数据到数据接收器。
     # ！注意配置这个参数WithSyncMode()
