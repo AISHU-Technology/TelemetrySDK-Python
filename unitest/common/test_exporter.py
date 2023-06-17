@@ -7,7 +7,7 @@ from exporter.public.exporter import Exporter
 class TestExporter(unittest.TestCase):
     def test_name(self):
         exporter = Exporter(StdoutClient())
-        self.assertEqual(exporter.name, "./AnyRobotData.txt")
+        self.assertEqual(exporter.name, "./AnyRobotData.json")
 
     def test_shutdown(self):
         exporter = Exporter(StdoutClient())

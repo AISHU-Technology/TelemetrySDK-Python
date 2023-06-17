@@ -76,7 +76,7 @@ class FileClient(Client):
 
     def __init__(self, path: Optional[str] = None):
         if not isinstance(path, str) or path.strip() == "":
-            path = "./ObservableData.txt"
+            path = "./ObservableData.json"
         self._path = path
 
     def path(self) -> str:
@@ -99,7 +99,7 @@ class StdoutClient(Client):
 
     def __init__(self, path: Optional[str] = None):
         if not isinstance(path, str) or path.strip() == "":
-            path = "./AnyRobotData.txt"
+            path = "./AnyRobotData.json"
         self._path = path
 
     def path(self) -> str:

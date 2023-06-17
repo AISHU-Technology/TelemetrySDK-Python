@@ -35,15 +35,8 @@ def log_init():
                    WithSyncMode())))
 
 
-def add_before(x: int, y: int) -> int:
-    return x + y
-
-
-def multiply_before(x: int, y: int) -> int:
-    return x * y
-
-
 def add(x: int, y: int) -> int:
+    # 设置属性的key中特殊字符.禁止使用
     func_attr = Attributes({"param_x": x, "param_y": y}, atype="pair")
     system_logger.warn(message="this is a info message", attributes=func_attr)
     return x + y

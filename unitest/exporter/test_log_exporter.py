@@ -16,7 +16,7 @@ class TestLogExporter(unittest.TestCase):
         self.span_processor.shutdown()
 
     def test_name(self):
-        self.assertEqual(self.log_exporter.name(), "./AnyRobotData.txt")
+        self.assertEqual(self.log_exporter.name(), "./AnyRobotData.json")
 
     def test_shutdown(self):
         self.assertIsNone(self.log_exporter.shutdown())

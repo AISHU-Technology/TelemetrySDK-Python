@@ -30,11 +30,11 @@ def trace_init():
     # )
     trace_processor = SynchronousMultiSpanProcessor()
     trace_processor.add_span_processor(
-        BatchSpanProcessor(span_exporter=trace_exporter, schedule_delay_millis=2000,
-                           max_queue_size=10000, max_export_batch_size=400
-                           ))
+        span_processor=BatchSpanProcessor(span_exporter=trace_exporter, schedule_delay_millis=2000,
+                                          max_queue_size=10000, max_export_batch_size=400
+                                          ))
     trace_provider = TracerProvider(resource=trace_resource(), active_span_processor=trace_processor)
-    set_tracer_provider(trace_provider)
+    set_tracer_provider(tracer_provider=trace_provider)
     RequestsInstrumentor().instrument()
     FlaskInstrumentor().instrument_app(app)
 
