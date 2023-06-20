@@ -9,7 +9,7 @@ from exporter.ar_log.log_exporter import ARLogExporter
 from exporter.ar_trace.examples.multi_service_c_with_trace import get_province, get_city
 from exporter.ar_trace.trace_exporter import ARTraceExporter, tracer
 from exporter.config.config import Compression
-from exporter.public.client import StdoutClient, HTTPClient
+from exporter.public.client import StdoutClient, HTTPClient, FileClient, ConsoleClient
 from exporter.public.public import WithAnyRobotURL, WithSyncMode, WithCompression, WithTimeout, WithHeader, WithRetry
 from exporter.resource.resource import set_service_info, trace_resource, log_resource
 from tlogging import SamplerLogger
@@ -20,11 +20,19 @@ app = flask.Flask(__name__)
 
 
 def trace_init():
-    set_service_info("YourServiceName", "1.0.0", "983d7e1d5e8cda64")
+    set_service_info("YourServiceName", "2.4.1", "983d7e1d5e8cda64")
     trace_exporter = ARTraceExporter(
-        # HTTPClient(WithAnyRobotURL("http://127.0.0.1/api/feed_ingester/v1/jobs/job-864ab9d78f6a1843/events"))
-        StdoutClient("multi_service_b_with_trace.json")
+        FileClient("multi_service_b_with_trace.json")
     )
+    # trace_exporter = ARTraceExporter(
+    #     ConsoleClient()
+    # )
+    # trace_exporter = ARTraceExporter(
+    #     StdoutClient("multi_service_b_with_trace.json")
+    # )
+    # trace_exporter = ARTraceExporter(
+    #     HTTPClient(WithAnyRobotURL("http://127.0.0.1/api/feed_ingester/v1/jobs/job-864ab9d78f6a1843/events"))
+    # )
     trace_processor = SynchronousMultiSpanProcessor()
     trace_processor.add_span_processor(
         BatchSpanProcessor(span_exporter=trace_exporter, schedule_delay_millis=2000,
@@ -38,7 +46,7 @@ def trace_init():
 
 def log_init():
     # 设置服务名、服务版本号、服务运行实例ID
-    set_service_info("YourServiceName", "2.3.0", "983d7e1d5e8cda64")
+    set_service_info("YourServiceName", "2.4.1", "983d7e1d5e8cda64")
     # 初始化系统日志器，系统日志在控制台输出，并且异步模式上报数据到数据接收器。
     global system_logger
     system_logger = SamplerLogger(log_resource(), ConsoleExporter(), ARLogExporter(

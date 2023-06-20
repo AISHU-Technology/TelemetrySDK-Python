@@ -1,11 +1,23 @@
 import unittest
 
-from exporter.public.client import StdoutClient, HTTPClient
+from exporter.public.client import StdoutClient, HTTPClient, ConsoleClient, FileClient
 
 
 class TestClient(unittest.TestCase):
     def test_client(self):
         assert True
+
+    def test_console_client(self):
+        console_client = ConsoleClient()
+        self.assertEqual(console_client.path(), "Console")
+        self.assertEqual(console_client.stop(), False)
+        self.assertEqual(console_client.upload_data(""), False)
+
+    def test_file_client(self):
+        file_client = FileClient("./empty_file_for_test")
+        self.assertEqual(file_client.path(), "./empty_file_for_test")
+        self.assertEqual(file_client.stop(), False)
+        self.assertEqual(file_client.upload_data(""), False)
 
     def test_stdout_client(self):
         stdout_client = StdoutClient("./empty_file_for_test")

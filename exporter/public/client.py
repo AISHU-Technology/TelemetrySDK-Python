@@ -49,14 +49,57 @@ class Client(ABC):
         pass
 
 
-class StdoutClient(Client):
+class ConsoleClient(Client):
     """
-    StdoutClient 是 Client 的本地文件发送实现类。
+    ConsoleClient 是 Client 的控制台发送实现类。
+    """
+
+    def __init__(self):
+        self._path = "Console"
+
+    def path(self) -> str:
+        return self._path
+
+    def stop(self) -> bool:
+        return False
+
+    def upload_data(self, data: str) -> bool:
+        stdout.write(data)
+        stdout.flush()
+        return False
+
+
+class FileClient(Client):
+    """
+    FileClient 是 Client 的本地文件发送实现类。
     """
 
     def __init__(self, path: Optional[str] = None):
         if not isinstance(path, str) or path.strip() == "":
-            path = "./AnyRobotData.txt"
+            path = "./ObservableData.json"
+        self._path = path
+
+    def path(self) -> str:
+        return self._path
+
+    def stop(self) -> bool:
+        return False
+
+    def upload_data(self, data: str) -> bool:
+        with codecs.open(self._path, 'a', encoding='utf-8') as file:
+            file.write(data)
+            file.flush()
+        return False
+
+
+class StdoutClient(Client):
+    """
+    StdoutClient 是 Client 的控制台+本地文件发送实现类。
+    """
+
+    def __init__(self, path: Optional[str] = None):
+        if not isinstance(path, str) or path.strip() == "":
+            path = "./AnyRobotData.json"
         self._path = path
 
     def path(self) -> str:
