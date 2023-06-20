@@ -55,6 +55,8 @@ def multiply(x: int, y: int) -> int:
 """
 prop用于记录父节点的Context。
 carrier用于存放当前节点的Context。
+这两个参数的作用是把原本业务上顺序执行的函数，不存在父子关系的函数，记录在一条链路上。
+如果存在父子关系，则不需要配置这两个参数。
 """
 prop = TraceContextTextMapPropagator()
 carrier = {}
