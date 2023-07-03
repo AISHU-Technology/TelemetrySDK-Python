@@ -13,7 +13,7 @@ from exporter.resource.resource import set_service_info, trace_resource
 
 
 def trace_init():
-    set_service_info("YourServiceName", "2.4.1", "983d7e1d5e8cda64")
+    set_service_info("YourServiceName", "2.4.2", "983d7e1d5e8cda64")
     trace_exporter = ARTraceExporter(
         FileClient("multi_service_a_with_trace.json")
     )

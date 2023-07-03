@@ -55,7 +55,7 @@ multi_service_a.py->multi_service_b.py->multi_service_c.py
 # multi_service运行过程
 
 1. 示例代码仅用于调试不用于生产，因此导包没有添加进requirement.txt，需要自行添加示例代码需要的依赖。
-2. opentelemetry-instrumentation-requests~=0.38b0 opentelemetry-instrumentation-flask==0.38b0
+2. opentelemetry-instrumentation-requests~=0.38b0 opentelemetry-instrumentation-flask==0.38b0。
 3. 准备好本地数据库用于调试，直到成功运行multi_service_c.py。
 4. 启动multi_service_b.py，运行multi_service_a.py，成功获取“Address : SiChuan Province ChengDu City”。
 5. 切换成运行multi_service_b_with_trace.py、multi_service_a_with_trace.py，查看控制台和本地文件。
