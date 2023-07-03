@@ -21,7 +21,7 @@ def anyrobot_traces_from_trace_spans(traces: typing.Sequence[ReadableSpan], inde
              for trace in traces],
         ensure_ascii=False,
         indent=indent,
-    )
+    ) + "\n"
 
 
 def anyrobot_trace_from_trace(trace: ReadableSpan) -> str:

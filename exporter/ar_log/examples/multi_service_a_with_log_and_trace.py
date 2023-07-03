@@ -21,15 +21,15 @@ def trace_init():
     trace_exporter = ARTraceExporter(
         FileClient("multi_service_a_with_trace.json")
     )
-    trace_exporter = ARTraceExporter(
-        ConsoleClient()
-    )
-    trace_exporter = ARTraceExporter(
-        StdoutClient("multi_service_a_with_trace.json")
-    )
-    trace_exporter = ARTraceExporter(
-        HTTPClient(WithAnyRobotURL("http://127.0.0.1/api/feed_ingester/v1/jobs/job-864ab9d78f6a1843/events"))
-    )
+    # trace_exporter = ARTraceExporter(
+    #     ConsoleClient()
+    # )
+    # trace_exporter = ARTraceExporter(
+    #     StdoutClient("multi_service_a_with_trace.json")
+    # )
+    # trace_exporter = ARTraceExporter(
+    #     HTTPClient(WithAnyRobotURL("http://127.0.0.1/api/feed_ingester/v1/jobs/job-864ab9d78f6a1843/events"))
+    # )
     trace_processor = SynchronousMultiSpanProcessor()
     trace_processor.add_span_processor(
         BatchSpanProcessor(span_exporter=trace_exporter, schedule_delay_millis=2000,
