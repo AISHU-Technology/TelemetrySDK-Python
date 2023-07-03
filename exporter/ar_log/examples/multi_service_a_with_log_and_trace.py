@@ -37,7 +37,10 @@ def trace_init():
                            ))
     trace_provider = TracerProvider(resource=trace_resource(), active_span_processor=trace_processor)
     set_tracer_provider(trace_provider)
-    RequestsInstrumentor().instrument()
+    # excluded_urls填写Log上报地址，用英文逗号分隔，避免上报Log的行为被框架捕获额外生成独立的Trace。
+    RequestsInstrumentor().instrument(
+        excluded_urls="http://127.0.0.1/api/feed_ingester/v1/jobs/job-983d7e1d5e8cda64/events,"
+                      "http://127.0.0.1/api/feed_ingester/v1/jobs/job-c9a577c302505576/events")
 
 
 def log_init():
