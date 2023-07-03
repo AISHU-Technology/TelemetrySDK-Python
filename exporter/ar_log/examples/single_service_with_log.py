@@ -58,6 +58,9 @@ if __name__ == "__main__":
     num = add(num, 3)
     num = multiply(num, 4)
     print(num)
+    """
+        必须调用shutdown()否则线程无法退出，初始化了几个Logger就要shutdown几次。
+    """
     system_logger.shutdown()
     service_logger.shutdown()
     all_config_logger.shutdown()

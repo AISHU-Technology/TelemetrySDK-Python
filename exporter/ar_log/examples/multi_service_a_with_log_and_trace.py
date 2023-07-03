@@ -85,6 +85,9 @@ if __name__ == "__main__":
     log_init()
     # 业务代码
     print(address())
+    """
+        必须调用shutdown()否则线程无法退出，初始化了几个Logger就要shutdown几次。
+    """
     system_logger.shutdown()
     service_logger.shutdown()
     all_config_logger.shutdown()
