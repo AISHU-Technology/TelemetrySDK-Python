@@ -5,6 +5,7 @@ from opentelemetry.sdk.trace import SynchronousMultiSpanProcessor, TracerProvide
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
 from opentelemetry.trace import set_tracer_provider
 
+from exporter.ar_log.examples.multi_service_c_with_log_and_trace import db_init, mock_get_province, mock_get_city
 from exporter.ar_log.log_exporter import ARLogExporter
 from exporter.ar_trace.examples.multi_service_c_with_trace import get_province, get_city
 from exporter.ar_trace.trace_exporter import ARTraceExporter, tracer
@@ -81,7 +82,11 @@ def index() -> str:
 @app.route("/province")
 def province() -> str:
     with tracer.start_as_current_span("service_province") as span:
-        _province = get_province(3)
+        try:
+            db_init()
+            _province = get_province(3)
+        except:
+            _province = mock_get_province(3)
         service_logger.info(_province)
     return _province
 
@@ -89,7 +94,11 @@ def province() -> str:
 @app.route("/city")
 def city() -> str:
     with tracer.start_as_current_span("service_city") as span:
-        _city = get_city(4)
+        try:
+            db_init()
+            _city = get_city(4)
+        except:
+            _city = mock_get_city(4)
         system_logger.info(_city)
     return _city
 
