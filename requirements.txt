@@ -6,3 +6,5 @@ utils~=1.0.1
 urllib3~=1.26.16
 opentelemetry-api~=1.18.0
 opentelemetry-sdk~=1.18.0
+# opentelemetry-instrumentation-requests~=0.38b0
+# opentelemetry-instrumentation-flask==0.38b0
