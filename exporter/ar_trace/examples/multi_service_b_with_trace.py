@@ -5,7 +5,8 @@ from opentelemetry.sdk.trace import SynchronousMultiSpanProcessor, TracerProvide
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
 from opentelemetry.trace import set_tracer_provider
 
-from exporter.ar_trace.examples.multi_service_c_with_trace import get_province, get_city
+from exporter.ar_trace.examples.multi_service_c_with_trace import get_province, get_city, db_init, mock_get_province, \
+    mock_get_city
 from exporter.ar_trace.trace_exporter import ARTraceExporter, tracer
 from exporter.public.client import StdoutClient, HTTPClient, ConsoleClient, FileClient
 from exporter.public.public import WithAnyRobotURL
@@ -15,7 +16,7 @@ app = flask.Flask(__name__)
 
 
 def trace_init():
-    set_service_info("YourServiceName", "2.4.1", "983d7e1d5e8cda64")
+    set_service_info("YourServiceName", "2.4.2", "983d7e1d5e8cda64")
     trace_exporter = ARTraceExporter(
         FileClient("multi_service_b_with_trace.json")
     )
@@ -47,14 +48,22 @@ def index() -> str:
 @app.route("/province")
 def province() -> str:
     with tracer.start_as_current_span("service_province") as span:
-        _province = get_province(3)
+        try:
+            db_init()
+            _province = get_province(3)
+        except:
+            _province = mock_get_province(3)
     return _province
 
 
 @app.route("/city")
 def city() -> str:
     with tracer.start_as_current_span("service_city") as span:
-        _city = get_city(4)
+        try:
+            db_init()
+            _city = get_city(4)
+        except:
+            _city = mock_get_city(4)
     return _city
 
 

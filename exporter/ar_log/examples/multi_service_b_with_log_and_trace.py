@@ -5,6 +5,7 @@ from opentelemetry.sdk.trace import SynchronousMultiSpanProcessor, TracerProvide
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
 from opentelemetry.trace import set_tracer_provider
 
+from exporter.ar_log.examples.multi_service_c_with_log_and_trace import db_init, mock_get_province, mock_get_city
 from exporter.ar_log.log_exporter import ARLogExporter
 from exporter.ar_trace.examples.multi_service_c_with_trace import get_province, get_city
 from exporter.ar_trace.trace_exporter import ARTraceExporter, tracer
@@ -20,7 +21,7 @@ app = flask.Flask(__name__)
 
 
 def trace_init():
-    set_service_info("YourServiceName", "2.4.1", "983d7e1d5e8cda64")
+    set_service_info("YourServiceName", "2.4.2", "983d7e1d5e8cda64")
     trace_exporter = ARTraceExporter(
         FileClient("multi_service_b_with_trace.json")
     )
@@ -40,13 +41,16 @@ def trace_init():
                            ))
     trace_provider = TracerProvider(resource=trace_resource(), active_span_processor=trace_processor)
     set_tracer_provider(trace_provider)
-    RequestsInstrumentor().instrument()
+    # excluded_urls填写Log上报地址，用英文逗号分隔，避免上报Log的行为被框架捕获额外生成独立的Trace。
+    RequestsInstrumentor().instrument(
+        excluded_urls="http://127.0.0.1/api/feed_ingester/v1/jobs/job-983d7e1d5e8cda64/events,"
+                      "http://127.0.0.1/api/feed_ingester/v1/jobs/job-c9a577c302505576/events")
     FlaskInstrumentor().instrument_app(app)
 
 
 def log_init():
     # 设置服务名、服务版本号、服务运行实例ID
-    set_service_info("YourServiceName", "2.4.1", "983d7e1d5e8cda64")
+    set_service_info("YourServiceName", "2.4.2", "983d7e1d5e8cda64")
     # 初始化系统日志器，系统日志在控制台输出，并且异步模式上报数据到数据接收器。
     global system_logger
     system_logger = SamplerLogger(log_resource(), ConsoleExporter(), ARLogExporter(
@@ -78,7 +82,11 @@ def index() -> str:
 @app.route("/province")
 def province() -> str:
     with tracer.start_as_current_span("service_province") as span:
-        _province = get_province(3)
+        try:
+            db_init()
+            _province = get_province(3)
+        except:
+            _province = mock_get_province(3)
         service_logger.info(_province)
     return _province
 
@@ -86,7 +94,11 @@ def province() -> str:
 @app.route("/city")
 def city() -> str:
     with tracer.start_as_current_span("service_city") as span:
-        _city = get_city(4)
+        try:
+            db_init()
+            _city = get_city(4)
+        except:
+            _city = mock_get_city(4)
         system_logger.info(_city)
     return _city
 

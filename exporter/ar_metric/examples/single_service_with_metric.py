@@ -20,7 +20,7 @@ from exporter.resource.resource import metric_resource, set_service_info
 
 
 def metric_init():
-    set_service_info("YourServiceName", "2.4.1", "983d7e1d5e8cda64")
+    set_service_info("YourServiceName", "2.4.2", "983d7e1d5e8cda64")
     """
     写本地文件或者上报AR。
     """

@@ -17,19 +17,19 @@ from tlogging.tlogger import SyncLogger
 
 
 def trace_init():
-    set_service_info("YourServiceName", "2.4.1", "983d7e1d5e8cda64")
+    set_service_info("YourServiceName", "2.4.2", "983d7e1d5e8cda64")
     trace_exporter = ARTraceExporter(
         FileClient("multi_service_a_with_trace.json")
     )
-    trace_exporter = ARTraceExporter(
-        ConsoleClient()
-    )
-    trace_exporter = ARTraceExporter(
-        StdoutClient("multi_service_a_with_trace.json")
-    )
-    trace_exporter = ARTraceExporter(
-        HTTPClient(WithAnyRobotURL("http://127.0.0.1/api/feed_ingester/v1/jobs/job-864ab9d78f6a1843/events"))
-    )
+    # trace_exporter = ARTraceExporter(
+    #     ConsoleClient()
+    # )
+    # trace_exporter = ARTraceExporter(
+    #     StdoutClient("multi_service_a_with_trace.json")
+    # )
+    # trace_exporter = ARTraceExporter(
+    #     HTTPClient(WithAnyRobotURL("http://127.0.0.1/api/feed_ingester/v1/jobs/job-864ab9d78f6a1843/events"))
+    # )
     trace_processor = SynchronousMultiSpanProcessor()
     trace_processor.add_span_processor(
         BatchSpanProcessor(span_exporter=trace_exporter, schedule_delay_millis=2000,
@@ -37,12 +37,15 @@ def trace_init():
                            ))
     trace_provider = TracerProvider(resource=trace_resource(), active_span_processor=trace_processor)
     set_tracer_provider(trace_provider)
-    RequestsInstrumentor().instrument()
+    # excluded_urls填写Log上报地址，用英文逗号分隔，避免上报Log的行为被框架捕获额外生成独立的Trace。
+    RequestsInstrumentor().instrument(
+        excluded_urls="http://127.0.0.1/api/feed_ingester/v1/jobs/job-983d7e1d5e8cda64/events,"
+                      "http://127.0.0.1/api/feed_ingester/v1/jobs/job-c9a577c302505576/events")
 
 
 def log_init():
     # 设置服务名、服务版本号、服务运行实例ID
-    set_service_info("YourServiceName", "2.4.1", "983d7e1d5e8cda64")
+    set_service_info("YourServiceName", "2.4.2", "983d7e1d5e8cda64")
     # 初始化系统日志器，系统日志在控制台输出，并且异步模式上报数据到数据接收器。
     global system_logger
     system_logger = SamplerLogger(log_resource(), ConsoleExporter(), ARLogExporter(
@@ -82,6 +85,9 @@ if __name__ == "__main__":
     log_init()
     # 业务代码
     print(address())
+    """
+        必须调用shutdown()否则线程无法退出，初始化了几个Logger就要shutdown几次。
+    """
     system_logger.shutdown()
     service_logger.shutdown()
     all_config_logger.shutdown()

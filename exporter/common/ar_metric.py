@@ -28,16 +28,14 @@ def anyrobot_metrics_from_resource_metrics(metrics: MetricsData, indent=4) -> st
     data += "\n"结尾换行，
     ascii=False兼容中文。
     """
-    metrics = json.dumps(
+    return json.dumps(
         obj=[
             json.loads(anyrobot_metric_from_resource_metric(resource_metrics))
             for resource_metrics in metrics.resource_metrics
         ],
         ensure_ascii=False,
         indent=indent,
-    )
-    metrics += "\n"
-    return metrics
+    ) + "\n"
 
 
 def anyrobot_metric_from_resource_metric(resource_metric: ResourceMetrics) -> str:
