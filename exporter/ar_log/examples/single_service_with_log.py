@@ -15,7 +15,7 @@ def log_init():
     # 初始化系统日志器，系统日志在控制台输出，并且异步模式上报数据到数据接收器。
     global system_logger
     system_logger = SamplerLogger(log_resource(), ConsoleExporter(), ARLogExporter(
-        HTTPClient(WithAnyRobotURL("http://127.0.0.1/api/feed_ingester/v1/jobs/job-983d7e1d5e8cda64/events"))))
+        FileClient("./AnyRobotLog.json")))
 
     # 初始化业务日志器，业务日志同步模式上报数据到数据接收器。
     # ！注意配置这个参数WithSyncMode()
